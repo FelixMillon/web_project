@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
+import { GraphqlModule } from './graphql/graphql.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthCheckModule } from './healthCheck/healthCheck.module';
+import { AppResolver } from './app.resolver';
 
 @Module({
-  imports: [HealthCheckModule],
+  imports: [GraphqlModule, HealthCheckModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppResolver],
 })
 export class AppModule {}
