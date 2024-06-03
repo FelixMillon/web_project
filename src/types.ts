@@ -4,12 +4,14 @@ export type User = {
     pseudo: string;
     name: string;
     password: string;
+    conversations: Conversation[];
 };
 
 export type Conversation = {
     id: number;
     name: string;
     users: User[];
+    owners: User[];
     timestamp: Date;
 };
 
