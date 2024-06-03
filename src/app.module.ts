@@ -1,15 +1,23 @@
 import { Module } from '@nestjs/common';
-import { GraphqlModule } from './graphql/graphql.module';
-import { BullQueueModule } from './bull/bull.module';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { HealthCheckModule } from './healthCheck/healthCheck.module';
-import { AppResolver } from './app.resolver';
-import { MessageResolver } from './resolvers/message.resolver';
+import { ConfigModule } from '@nestjs/config';
+import { GraphQLModule } from '@nestjs/graphql';
+import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { UsersModule } from './users/users.module';
+import { RedisModule } from './redis/redis.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [GraphqlModule, BullQueueModule, HealthCheckModule],
-  controllers: [AppController],
-  providers: [AppService, AppResolver, MessageResolver],
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    GraphQLModule.forRoot<ApolloDriverConfig>({
+      driver: ApolloDriver,
+      autoSchemaFile: 'schema.gql',
+    }),
+    UsersModule,
+    RedisModule,
+    AuthModule,
+  ],
 })
 export class AppModule {}

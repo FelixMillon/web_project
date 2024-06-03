@@ -10,11 +10,15 @@ type User {
   password: String!
 }
 
+type LoginResponse {
+  access_token: String!
+}
+
 type Query {
-  getResult: String!
+  users: [User!]!
 }
 
 type Mutation {
-  login(email: String!, password: String!): String!
   createUser(email: String!, pseudo: String!, name: String!, password: String!): User!
+  login(email: String!, password: String!): LoginResponse!
 }

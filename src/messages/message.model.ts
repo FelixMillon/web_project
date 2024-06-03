@@ -1,5 +1,5 @@
 import { Field, ObjectType, ID } from '@nestjs/graphql';
-// import { User } from './user.model'; 
+import { User } from '../users/user.model';
 
 @ObjectType()
 export class Message {
@@ -12,8 +12,8 @@ export class Message {
   @Field()
   timestamp: Date;
 
-//   @Field(() => User)
-//   author: User;
+  @Field(() => User)
+  author: User;
 
   @Field()
   content: string;

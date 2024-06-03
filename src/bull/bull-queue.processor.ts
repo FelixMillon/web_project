@@ -1,6 +1,6 @@
 import { Processor, Process } from '@nestjs/bull';
 import { Job } from 'bull';
-import { Message } from '../models/message.model';
+import { Message } from '../messages/message.model';
 
 @Processor('message-queue')
 export class BullQueueProcessor {
