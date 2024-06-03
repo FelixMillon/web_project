@@ -29,4 +29,4 @@ jobs:
         docker build -t testwebpilyes .
         docker tag testwebpilyes:latest docker.pkg.github.com/testwebpilyes:latest
         echo ${{ secrets.SECRET_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
-        docker push docker.pkg.github.com/${{ github.repository }}/testwebpilyes:latest
+        docker push docker.pkg.github.com/testwebpilyes:latest
