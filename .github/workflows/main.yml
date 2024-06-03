@@ -1,0 +1,31 @@
+name: Build NestJS App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: 16
+
+    - name: Install Dependencies
+      run: npm ci
+
+    - name: Build
+      run: npm run build
+
+    - name: Build and Push Docker image
+      run: |
+        docker build -t web_project .
+        docker tag web_project:latest docker.pkg.github.com/${{ github.repository }}/web_project:latest
+        echo ${{ secrets.SECRET_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
+        docker push docker.pkg.github.com/${{ github.repository }}/web_project:latest
