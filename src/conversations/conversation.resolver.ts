@@ -1,33 +1,49 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { Conversation } from './conversation.model';
+import { ConversationService } from './conversation.service';
 import { User } from '../users/user.model';
-import { Message } from '../messages/message.model';
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
-  private conversations: Conversation[] = [];
+  constructor(private conversationService: ConversationService) {}
 
-  @Query(() => [Conversation])
-  getConversations(): Conversation[] {
-    return this.conversations;
+  @Mutation(() => Conversation)
+  createConversation(@Args('userIds', { type: () => [String] }) userIds: string[]): Conversation {
+    return this.conversationService.create(userIds);
   }
 
   @Mutation(() => Conversation)
-  createConversation(
-    @Args('userIds', { type: () => [String] }) userIds: string[],
-  ): Conversation {
-    const conversation: Conversation = {
-      id: (this.conversations.length + 1).toString(),
-      participants: userIds.map(id => ({ id, username: '' } as User)), 
-      messages: [],
-    };
-    this.conversations.push(conversation);
-    return conversation;
+  updateConversation(@Args('id') id: string, @Args('userIds', { type: () => [String] }) userIds: string[]): Conversation {
+    return this.conversationService.update(id, userIds);
   }
 
-  @Query(() => [Message])
-  getMessages(@Args('conversationId') conversationId: string): Message[] {
-    const conversation = this.conversations.find(conv => conv.id === conversationId);
-    return conversation ? conversation.messages : [];
+  @Mutation(() => Conversation)
+  joinConversation(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+    return this.conversationService.join(id, userId);
+  }
+
+  @Mutation(() => Conversation)
+  leaveConversation(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+    return this.conversationService.leave(id, userId);
+  }
+
+  @Mutation(() => Conversation)
+  invitesTo(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+    return this.conversationService.invitesTo(id, userId);
+  }
+
+  @Mutation(() => Conversation)
+  expulseOff(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+    return this.conversationService.expulseOff(id, userId);
+  }
+
+  @Query(() => [User])
+  getParticipants(@Args('id') id: string): User[] {
+    return this.conversationService.getParticipants(id);
+  }
+
+  @Query(() => [User])
+  getOwners(@Args('id') id: string): User[] {
+    return this.conversationService.getOwners(id);
   }
 }

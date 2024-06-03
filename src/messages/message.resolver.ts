@@ -1,27 +1,38 @@
-import { Resolver, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { Message } from './message.model';
-import { ConversationResolver } from '../conversations/conversation.resolver';
+import { MessageService } from './message.service';
 
 @Resolver(() => Message)
 export class MessageResolver {
-  constructor(private conversationResolver: ConversationResolver) {}
+  constructor(private messageService: MessageService) {}
 
   @Mutation(() => Message)
-  sendMessage(
-    @Args('conversationId') conversationId: string,
-    @Args('content') content: string,
-    @Args('senderId') senderId: string,
-  ): Message {
-    const message: Message = {
-      id: (new Date().getTime()).toString(),
-      content,
-      sender: { id: senderId, username: '' }, 
-      timestamp: new Date().toISOString(),
-    };
-    const conversation = this.conversationResolver.getConversations().find(conv => conv.id === conversationId);
-    if (conversation) {
-      conversation.messages.push(message);
-    }
-    return message;
+  publishMessage(@Args('conversationId') conversationId: string, @Args('content') content: string, @Args('senderId') senderId: string): Message {
+    return this.messageService.publish(conversationId, content, senderId);
+  }
+
+  @Mutation(() => Boolean)
+  deleteMessageById(@Args('id') id: string): boolean {
+    return this.messageService.deleteById(id);
+  }
+
+  @Mutation(() => Boolean)
+  deleteMessageByAuthor(@Args('authorId') authorId: string): boolean {
+    return this.messageService.deleteByAuthor(authorId);
+  }
+
+  @Mutation(() => Boolean)
+  deleteMessageByConversationId(@Args('conversationId') conversationId: string): boolean {
+    return this.messageService.deleteByConversationId(conversationId);
+  }
+
+  @Query(() => Message)
+  getMessageById(@Args('id') id: string): Message {
+    return this.messageService.getById(id);
+  }
+
+  @Query(() => [Message])
+  getMessageByAuthor(@Args('authorId') authorId: string): Message[] {
+    return this.messageService.getByAuthor(authorId);
   }
 }

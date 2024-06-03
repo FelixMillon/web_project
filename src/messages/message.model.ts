@@ -14,4 +14,7 @@ export class Message {
 
   @Field()
   timestamp: string;
+
+  @Field()
+  conversationId: string;
 }
