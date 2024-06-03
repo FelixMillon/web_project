@@ -27,6 +27,6 @@ jobs:
     - name: Build and Push Docker image
       run: |
         docker build -t web_project .
-        docker tag web_project:latest docker.pkg.github.com/${{ github.repository }}/web_project:latest
+        docker tag web_project:latest docker.pkg.github.com/web_project_ilyes_test:latest
         echo ${{ secrets.SECRET_TOKEN }} | docker login docker.pkg.github.com -u ${{ github.actor }} --password-stdin
         docker push docker.pkg.github.com/${{ github.repository }}/web_project:latest
