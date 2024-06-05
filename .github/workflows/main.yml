@@ -28,11 +28,10 @@ jobs:
       run: |
         docker build -t web_project .
 
-    -
-      name: Login to Docker Hub
+    - name: Login to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: 'ilyes'
+        username: 'ilyesb36'
         password: ${{ secrets.SECRET_TOKEN }}
 
     - name: Build and push
