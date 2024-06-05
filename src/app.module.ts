@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { BullQueueModule } from './bull/bull.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { ConfigModule } from '@nestjs/config';
-import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { UsersModule } from './users/user.module';
 import { RedisModule } from './redis/redis.module';
 import { AuthModule } from './auth/auth.module';
@@ -22,10 +21,7 @@ import { UserService } from './users/user.service';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    GraphQLModule.forRoot<ApolloDriverConfig>({
-      driver: ApolloDriver,
-      autoSchemaFile: 'schema.gql',
-    }),
+    GraphqlModule,
     UsersModule,
     RedisModule,
     AuthModule,
