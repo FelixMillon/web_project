@@ -3,7 +3,7 @@ import { BullQueueModule } from './bull/bull.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { ConfigModule } from '@nestjs/config';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
-import { UsersModule } from './users/users.module';
+import { UsersModule } from './users/user.module';
 import { RedisModule } from './redis/redis.module';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';

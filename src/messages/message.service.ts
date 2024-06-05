@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Message } from './message.model';
 import { User } from '../users/user.model';
 import { Conversation } from '../conversations/conversation.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MessageService {

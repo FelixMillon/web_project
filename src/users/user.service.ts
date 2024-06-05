@@ -1,9 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef  } from '@nestjs/common';
+import { RedisService } from '../redis/redis.service';
+import { hashPassword } from '../auth/auth.util';
+import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.model';
 import { Conversation } from '../conversations/conversation.model';
 
 @Injectable()
 export class UserService {
+  constructor(
+    @Inject(forwardRef(() => RedisService))
+    private redisService: RedisService
+  ) {}
   private users: User[] = [];
 
   getAllConversations(id: string): Conversation[] {
@@ -15,31 +22,27 @@ export class UserService {
     return this.users.find(user => user.id === id);
   }
 
-  create(email: string, pseudo: string, name: string, password: string): User {
-    const newUser = {
-      id: (this.users.length + 1).toString(),
-      email,
-      pseudo,
-      name,
-      password,
-      conversations: []
-    };
-    this.users.push(newUser);
-    return newUser;
+  async create(newUser: Partial<User>): Promise<User> {
+      newUser.id = uuidv4();
+      newUser.password = await hashPassword(newUser.password);
+      newUser.conversations = [];
+    await this.redisService.set(`user:${newUser.id}`, newUser);
+    return newUser as User;
   }
 
-  update(id: string, email: string | null, pseudo: string | null, name:  string | null): User {
-    const user = this.findById(id);
+  async update(newUserInfo: Partial<User>): Promise<User> {
+    const user = await this.redisService.get(`user:${newUserInfo.id}`);
     if (user) {
-      if(email){
-        user.email = email;
+      if(newUserInfo.email){
+        user.email = newUserInfo.email;
       }
-      if(pseudo){
-        user.pseudo = pseudo;
+      if(newUserInfo.pseudo){
+        user.pseudo = newUserInfo.pseudo;
       }
-      if(name){
-        user.name = name;
+      if(newUserInfo.name){
+        user.name = newUserInfo.name;
       }
+      await this.redisService.set(`user:${user.id}`, user);
     }
     return user;
   }
@@ -59,5 +62,15 @@ export class UserService {
       return 'JWT_TOKEN';
     }
     return null;
+  }
+  async findOneByEmail(email: string): Promise<User | null> {
+    const user = await this.redisService.get(`user:${email}`);
+    return user ? (user as User) : null;
+  }
+
+  async findAll(): Promise<User[]> {
+    const keys = await this.redisService.keys('user:*');
+    const users = await Promise.all(keys.map(key => this.redisService.get(key)));
+    return users;
   }
 }

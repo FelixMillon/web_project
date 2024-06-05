@@ -16,38 +16,21 @@ export class MessageResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Message)
-  async sendMessage(
-    @Args('content') content: string,
-    @Args('conversationId') conversationId: string,
-    @Context() context: any
-  ): Promise<Message> {
-    const user: User = context.req.user;
-
-    const message = new Message();
-    message.id = Date.now().toString();
-    message.eventType = 'message_sent';
-    message.timestamp = new Date();
-    message.content = content;
-    message.author = user;
-
-    await this.bullQueueService.addJob({ message });
-
-    return this.messageService.saveMessage(message);
-
-  @Mutation(() => Message)
-  publishMessage(
+  async publishMessage(
     @Args('conversationId') conversationId: string,
     @Args('eventType') eventType: string,
     @Args('authorId') authorId: string,
     @Args('content') content: string
-  ): Message {
+  ): Promise<Message> {
     // utiliser le token pour authorId
-    return this.messageService.publish(
+    const newMessage =  this.messageService.publish(
       conversationId,
       eventType,
       authorId,
       content
     );
+    await this.bullQueueService.addJob({ newMessage });
+    return newMessage;
   }
 
   @Mutation(() => Boolean)

@@ -1,7 +1,7 @@
 import { Module, forwardRef } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersResolver } from './users.resolver';
-import { UsersController } from './users.controller';
+import { UserService } from './user.service';
+import { UserResolver } from './user.resolver';
+import { UserController } from './user.controller';
 import { RedisModule } from '../redis/redis.module';
 import { AuthModule } from '../auth/auth.module';
 
@@ -10,8 +10,8 @@ import { AuthModule } from '../auth/auth.module';
     forwardRef(() => RedisModule),
     forwardRef(() => AuthModule),
   ],
-  providers: [UsersService, UsersResolver],
-  controllers: [UsersController],
-  exports: [UsersService],
+  providers: [UserService, UserResolver],
+  controllers: [UserController],
+  exports: [UserService],
 })
 export class UsersModule {}
