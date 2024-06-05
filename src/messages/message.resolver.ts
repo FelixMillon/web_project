@@ -4,7 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { MessageService } from './message.service';
 import { BullQueueService } from '../bull/bull-queue.service';
-import { User } from '../users/user.model';
+import { getPayload } from '../auth/auth.util';
 import { Message } from './message.model';
 
 @Resolver(() => Message)
@@ -16,44 +16,30 @@ export class MessageResolver {
 
   @UseGuards(GqlAuthGuard)
   @Mutation(() => Message)
-  async sendMessage(
-    @Args('content') content: string,
-    @Args('conversationId') conversationId: string,
-    @Context() context: any
-  ): Promise<Message> {
-    const user: User = context.req.user;
-
-    const message = new Message();
-    message.id = Date.now().toString();
-    message.eventType = 'message_sent';
-    message.timestamp = new Date();
-    message.content = content;
-    message.author = user;
-
-    await this.bullQueueService.addJob({ message });
-
-    return this.messageService.saveMessage(message);
-
-  @Mutation(() => Message)
-  publishMessage(
+  async publishMessage(
     @Args('conversationId') conversationId: string,
     @Args('eventType') eventType: string,
-    @Args('authorId') authorId: string,
+    @Args('token') token: string,
     @Args('content') content: string
-  ): Message {
-    // utiliser le token pour authorId
-    return this.messageService.publish(
+  ): Promise<Message> {
+    const payload = getPayload(token)
+    const newMessage =  this.messageService.publish(
       conversationId,
       eventType,
-      authorId,
+      payload.id,
       content
     );
+    await this.bullQueueService.addJob({ newMessage });
+    return newMessage;
   }
 
   @Mutation(() => Boolean)
-  deleteMessageById(@Args('id') id: string): boolean {
-    // utiliser le token pour vérifier que l'authorId du message correspond au token
-    return this.messageService.deleteById(id);
+  deleteMessageById(
+    @Args('token') token: string,
+    @Args('id') id: string
+  ): boolean {
+    const payload = getPayload(token)
+    return this.messageService.deleteById(id, payload.id);
   }
 
   @Mutation(() => Boolean)

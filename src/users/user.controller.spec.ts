@@ -23,7 +23,7 @@ describe('AppController', () => {
       password: "Azerty@123"
     }
     it('should return true', () => {
-      const result = userService.create(userData.email,userData.pseudo,userData.name,userData.password);
+      const result = userService.create(userData);
       expect(result).toBe(
         {
           id: "1",
@@ -62,7 +62,7 @@ describe('AppController', () => {
     ]
     it('should return false', () => {
       for(const userData of falseUserSet){
-        const result = userService.create(userData.email, userData.pseudo, userData.name, userData.password);
+        const result = userService.create(userData);
         expect(result).toBe(400);
       }
     });
@@ -77,16 +77,20 @@ describe('AppController', () => {
       password: "Azerty@123"
     }
     
-    userService.create(userData.email, userData.pseudo, userData.name, userData.password);
-
+    userService.create(userData);
+    const updateDataTrue = {
+      pseudo: "tutu"
+    }
     it('should return true', () => {
-      const result = userService.update(null, "tutu", null, null);
+      const result = userService.update(updateDataTrue);
         expect(result).toBe(true);
     });
-
+    const updateDataFalse = {
+      pseudo: ""
+    }
     it('should return false', () => {
-      const result = userService.update(null, "", null, null);
-        expect(result).toBe(true);
+      const result = userService.update(updateDataFalse);
+        expect(result).toBe(400);
     });
   });
 

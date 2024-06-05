@@ -1,10 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
+import { RedisService } from '../redis/redis.service';
 import { Message } from './message.model';
 import { User } from '../users/user.model';
 import { Conversation } from '../conversations/conversation.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class MessageService {
+  constructor(
+    @Inject(forwardRef(() => RedisService))
+    private redisService: RedisService
+  ) {}
   private messages: Message[] = [];
   private conversations: Conversation[] = [];
   private users: User[] = [];
@@ -14,27 +20,28 @@ export class MessageService {
     return message;
   }
 
-  publish(
+  async publish(
     conversationId: string,
     eventType: string,
     authorId: string,
     content: string
-  ): Message {
-    const conversation = this.conversations.find(conv => conv.id === conversationId)
+  ): Promise<Message> {
+    const conversation = await this.redisService.get(`conversation:${conversationId}`);
     const author = this.users.find(user => user.id === authorId)
     const message = {
-      id: (this.messages.length + 1).toString(),
+      id: uuidv4(),
       conversation,
       eventType,
       timestamp: Date.now(),
       author,
       content
     };
-    this.messages.push(message);
+    await this.redisService.set(`message:${message.id}`, message);
     return message;
   }
 
-  deleteById(id: string): boolean {
+  deleteById(id: string, authorId): boolean {
+
     const index = this.messages.findIndex(msg => msg.id === id);
     if (index !== -1) {
       this.messages.splice(index, 1);

@@ -1,18 +1,18 @@
 import { Controller, Post, Body, Get, Param, UnauthorizedException } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UserService } from './user.service';
 import { AuthService } from '../auth/auth.service';
 import { User } from './user.model';
 
 @Controller('users')
-export class UsersController {
+export class UserController {
   constructor(
-    private readonly usersService: UsersService,
+    private readonly userService: UserService,
     private readonly authService: AuthService,
   ) {}
 
   @Post('create')
   async createUser(@Body() createUserDto: Partial<User>): Promise<User> {
-    return this.usersService.create(createUserDto);
+    return this.userService.create(createUserDto);
   }
 
   @Post('login')
@@ -29,6 +29,6 @@ export class UsersController {
 
   @Get(':email')
   async findOneByEmail(@Param('email') email: string): Promise<User | null> {
-    return this.usersService.findOneByEmail(email);
+    return this.userService.findOneByEmail(email);
   }
 }

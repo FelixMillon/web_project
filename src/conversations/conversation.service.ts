@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Conversation } from './conversation.model';
 import { User } from '../users/user.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class ConversationService {
@@ -13,7 +14,7 @@ export class ConversationService {
       owners.push(this.users.find(user => user.id === ownerId))
     }
     const conversation = {
-      id: (this.conversations.length + 1).toString(),
+      id: uuidv4(),
       name,
       users: owners,
       owners,
