@@ -38,16 +38,5 @@ jobs:
       run: |
         docker push ilyesefrei/web_project:latest
 
-    # - name: Install Heroku CLI
-    #   run: curl https://cli-assets.heroku.com/install.sh | sh
-
-    # - name: Login to Heroku
-    #   run: heroku container:login
-    #   env:
-    #     HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-
-    # - name: Push to Heroku
-    #   run: heroku container:push web --app ${{ secrets.HEROKU_APP_NAME }}
-
-    # - name: Release to Heroku
-    #   run: heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
+    - name: Trigger Render Deployment
+      run: curl -X POST https://api.render.com/deploy/srv-cpg2bimct0pc73d5ieng?key=fW56L5bFRCE
