@@ -36,4 +36,4 @@ jobs:
         
     - name: Push to Docker Hub
       run: |
-        docker push ilyes/web_project:latest
+        docker push ilyesefrei/web_project:tagname
