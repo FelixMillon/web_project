@@ -21,5 +21,4 @@ export class Message {
 
   @Field()
   content: string;
-
 }

@@ -19,5 +19,5 @@ export class User {
   password: string; 
 
   @Field(() => [Conversation])
-  conversations: Conversation[]; 
+  conversations: Conversation[];
 }

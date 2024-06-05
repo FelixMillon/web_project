@@ -2,6 +2,7 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+
 type Conversation {
   id: ID!
   name: String!
@@ -30,6 +31,11 @@ type Message {
 
 type Query {
   getResult: String!
+}
+
+type Mutation {
+  login(email: String!, password: String!): String!
+  createUser(email: String!, pseudo: String!, name: String!, password: String!): User!
   getMessageById(id: String!): Message!
   getMessageByAuthor(authorId: String!): [Message!]!
   getUserById(id: String!): User!
