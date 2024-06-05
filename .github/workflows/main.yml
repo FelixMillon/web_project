@@ -37,3 +37,12 @@ jobs:
     - name: Push to Docker Hub
       run: |
         docker push ilyesefrei/web_project:latest
+
+    - name: Install Render CLI
+      run: curl https://getcli.render.com | sh
+
+    - name: Login to Render
+      run: render login --skip-otp --email ilyesb36130p@gmail.com --password efreitest
+
+    - name: Deploy to Render
+      run: render deploy --type docker --name web_project --image ilyesefrei/web_project:latest
