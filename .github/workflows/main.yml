@@ -31,8 +31,8 @@ jobs:
       uses: docker/login-action@v1
       with:
         registry: docker.io
-        username: ilyesefrei
-        password: ilyesefrei
+        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        password: ${{ secrets.DOCKER_HUB_PASSWORD }}
         
     - name: Push to Docker Hub
       run: |
