@@ -1,15 +1,18 @@
-import { Injectable, Inject, forwardRef  } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, BadRequestException  } from '@nestjs/common';
 import { RedisService } from '../redis/redis.service';
 import { hashPassword } from '../auth/auth.util';
-import { v4 as uuidv4 } from 'uuid';
 import { User } from './user.model';
 import { Conversation } from '../conversations/conversation.model';
+import { PrismaService } from '../infrastructure/database/database.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class UserService {
   constructor(
     @Inject(forwardRef(() => RedisService))
-    private redisService: RedisService
+    private redisService: RedisService,
+    @Inject(forwardRef(() => PrismaService))
+    private prisma: PrismaService
   ) {}
   private users: User[] = [];
 
@@ -23,28 +26,44 @@ export class UserService {
   }
 
   async create(newUser: Partial<User>): Promise<User> {
-      newUser.id = uuidv4();
-      newUser.password = await hashPassword(newUser.password);
-      newUser.conversations = [];
-    await this.redisService.set(`user:${newUser.id}`, newUser);
-    return newUser as User;
+    newUser.password = await hashPassword(newUser.password);
+    const inserted = await this.prisma.user.create({
+        data: {
+          email: newUser.email,
+          pseudo: newUser.pseudo,
+          name: newUser.name,
+          password: newUser.password
+        }
+    });
+    return inserted as User;
   }
 
-  async update(newUserInfo: Partial<User>): Promise<User> {
-    const user = await this.redisService.get(`user:${newUserInfo.id}`);
-    if (user) {
+  async update(id: string ,newUserInfo: Partial<User | null>): Promise<User> {
+    if (await this.findOneById(id)) {
+      let updates = {}
       if(newUserInfo.email){
-        user.email = newUserInfo.email;
+        updates["email"] = newUserInfo.email;
       }
       if(newUserInfo.pseudo){
-        user.pseudo = newUserInfo.pseudo;
+        updates["pseudo"] = newUserInfo.pseudo;
       }
       if(newUserInfo.name){
-        user.name = newUserInfo.name;
+        updates["name"] = newUserInfo.name;
       }
-      await this.redisService.set(`user:${user.id}`, user);
+      try {
+        const updatedUser = await this.prisma.user.update({
+            where: { id },
+            data: updates
+        });
+        return updatedUser as User
+      } catch (error) {
+          if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+              throw new BadRequestException("User doesn't exist");
+          }
+          throw new BadRequestException(`Error while updating user: ${error.message}`);
+      }
     }
-    return user;
+    return null
   }
 
   delete(id: string): boolean {
@@ -64,13 +83,52 @@ export class UserService {
     return null;
   }
   async findOneByEmail(email: string): Promise<User | null> {
-    const user = await this.redisService.get(`user:${email}`);
-    return user ? (user as User) : null;
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+          where: {
+            email
+          }
+      });
+      return user as User
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+              throw new BadRequestException("User doesn't exist");
+          }
+          throw new BadRequestException("Error while getting user");
+      }
+    }
+    return null
   }
 
-  async findAll(): Promise<User[]> {
-    const keys = await this.redisService.keys('user:*');
-    const users = await Promise.all(keys.map(key => this.redisService.get(key)));
-    return users;
+  async findAll(): Promise<User[] | null> {
+    try {
+      const users = await this.prisma.user.findMany({});
+      return users as User[]
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          throw new BadRequestException("Error while getting user");
+      }
+    }
+    return null
+  }
+
+  async findOneById(id: string): Promise<User | null> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+          where: {
+            id
+          }
+      });
+      return user as User
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+              throw new BadRequestException("User doesn't exist");
+          }
+          throw new BadRequestException("Error while getting user");
+      }
+    }
+    return null
   }
 }

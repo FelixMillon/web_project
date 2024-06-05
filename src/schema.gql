@@ -37,7 +37,7 @@ type Query {
   getMessageById(id: String!): Message!
   getMessageByAuthor(authorId: String!): [Message!]!
   getUserById(id: String!): User!
-  getAllConversations(userId: String!): [Conversation!]!
+  getAllConversations(token: String!): [Conversation!]!
   findOneByEmail(email: String!): User
   users: [User!]!
   getParticipants(id: String!): [User!]!
@@ -45,15 +45,14 @@ type Query {
 }
 
 type Mutation {
-  publishMessage(conversationId: String!, eventType: String!, authorId: String!, content: String!): Message!
-  deleteMessageById(id: String!): Boolean!
+  publishMessage(conversationId: String!, eventType: String!, token: String!, content: String!): Message!
+  deleteMessageById(token: String!, id: String!): Boolean!
   deleteMessageByAuthor(authorId: String!): Boolean!
   deleteMessageByConversationId(conversationId: String!): Boolean!
   login(email: String!, password: String!): LoginResponse!
   createUser(email: String!, pseudo: String!, name: String!, password: String!): User!
-  updateUser(id: String!, email: String!, pseudo: String!, name: String!): User!
-  deleteUser(id: String!): Boolean!
-  logIn(email: String!, password: String!): String!
+  updateUser(token: String!, email: String!, pseudo: String!, name: String!): User!
+  deleteUser(token: String!): Boolean!
   createConversation(ownersId: [String!]!, name: String!): Conversation!
   updateConversation(id: String!, name: [String!]!): Conversation!
   joinConversation(id: String!, userId: String!): Conversation!

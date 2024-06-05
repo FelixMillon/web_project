@@ -3,6 +3,7 @@ import { UserService } from './user.service';
 import { AuthService } from '../auth/auth.service';
 import { LoginResponse } from '../auth/dto/login-response.dto';
 import { Conversation } from '../conversations/conversation.model';
+import { getPayload } from '../auth/auth.util';
 import { User } from './user.model';
 
 @Resolver(() => User)
@@ -44,33 +45,26 @@ export class UserResolver {
 
   @Mutation(() => User)
   updateUser(
-    @Args('id') id: string,
-    @Args('email') email: string | null,
-    @Args('pseudo') pseudo: string | null,
-    @Args('name') name: string | null
+    @Args('token') token: string,
+    @Args('email', { defaultValue: null }) email: string | null,
+    @Args('pseudo', { defaultValue: null }) pseudo: string | null,
+    @Args('name', { defaultValue: null }) name: string | null,
   ): Promise<User> {
-    // recuperer id via tokens
-    return this.userService.update({ id, email, pseudo, name } as Partial<User>);
+
+    const payload = getPayload(token)
+    return this.userService.update(payload.id, { email, pseudo, name } as Partial<User>);
   }
 
   @Mutation(() => Boolean)
-  deleteUser(@Args('id') id: string): boolean {
-    // recuperer id via tokens
-    return this.userService.delete(id);
-  }
-
-  @Mutation(() => String)
-  logIn(
-    @Args('email') email: string, 
-    @Args('password') password: string,
-  ): string {
-    return this.userService.logIn(email, password);
+  deleteUser(@Args('token') token: string): boolean {
+    const payload = getPayload(token)
+    return this.userService.delete(payload.id);
   }
 
   @Query(() => [Conversation])
-  getAllConversations(@Args('userId') userId: string): Conversation[] {
-    // recuperer id via tokens
-    return this.userService.getAllConversations(userId);
+  getAllConversations(@Args('token') token: string): Conversation[] {
+    const payload = getPayload(token)
+    return this.userService.getAllConversations(payload.id);
   }
 
   @Query(() => User, { nullable: true })

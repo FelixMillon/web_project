@@ -4,6 +4,7 @@ import { GraphqlModule } from './graphql/graphql.module';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/user.module';
 import { RedisModule } from './redis/redis.module';
+import { DatabaseModule } from './infrastructure/database/database.module';
 import { AuthModule } from './auth/auth.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -24,6 +25,7 @@ import { UserService } from './users/user.service';
     GraphqlModule,
     UsersModule,
     RedisModule,
+    DatabaseModule,
     AuthModule,
     GraphqlModule,
     BullQueueModule,

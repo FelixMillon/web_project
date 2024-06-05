@@ -4,7 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { MessageService } from './message.service';
 import { BullQueueService } from '../bull/bull-queue.service';
-import { User } from '../users/user.model';
+import { getPayload } from '../auth/auth.util';
 import { Message } from './message.model';
 
 @Resolver(() => Message)
@@ -19,14 +19,14 @@ export class MessageResolver {
   async publishMessage(
     @Args('conversationId') conversationId: string,
     @Args('eventType') eventType: string,
-    @Args('authorId') authorId: string,
+    @Args('token') token: string,
     @Args('content') content: string
   ): Promise<Message> {
-    // utiliser le token pour authorId
+    const payload = getPayload(token)
     const newMessage =  this.messageService.publish(
       conversationId,
       eventType,
-      authorId,
+      payload.id,
       content
     );
     await this.bullQueueService.addJob({ newMessage });
@@ -34,9 +34,12 @@ export class MessageResolver {
   }
 
   @Mutation(() => Boolean)
-  deleteMessageById(@Args('id') id: string): boolean {
-    // utiliser le token pour vérifier que l'authorId du message correspond au token
-    return this.messageService.deleteById(id);
+  deleteMessageById(
+    @Args('token') token: string,
+    @Args('id') id: string
+  ): boolean {
+    const payload = getPayload(token)
+    return this.messageService.deleteById(id, payload.id);
   }
 
   @Mutation(() => Boolean)
