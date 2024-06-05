@@ -9,6 +9,11 @@ export class MessageService {
   private conversations: Conversation[] = [];
   private users: User[] = [];
 
+  async saveMessage(message: Message): Promise<Message> {
+    this.messages.push(message);
+    return message;
+  }
+
   publish(
     conversationId: string,
     eventType: string,
