@@ -1,10 +1,9 @@
-name: Build NestJS App
+name: Build and Deploy
 
 on:
   push:
     branches:
       - main
-      - testCI
 
 jobs:
   build:
@@ -24,9 +23,13 @@ jobs:
     - name: Build
       run: npm run build
 
-    - name: Build and Push Docker image
+    - name: Build and Login to Docker Hub
       run: |
         docker build -t web_project .
-        docker tag web_project:latest ghcr.io/web_project:latest
         echo ${{ secrets.SECRET_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker push ghcr.io/web_project:latest
+
+    - name: Build and push
+      uses: docker/build-push-action@v2
+      with:
+        push: true
+        tags: user/mywebapp:latest
