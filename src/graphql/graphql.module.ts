@@ -11,4 +11,5 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
     }),
   ],
 })
+
 export class GraphqlModule {}

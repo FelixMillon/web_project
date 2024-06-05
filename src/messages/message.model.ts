@@ -1,16 +1,20 @@
-import { Field, ObjectType, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { User } from '../users/user.model';
+import { Conversation } from '../conversations/conversation.model';
 
 @ObjectType()
 export class Message {
   @Field(() => ID)
   id: string;
 
+  @Field(() => Conversation)
+  conversation: Conversation;
+
   @Field()
   eventType: string;
 
   @Field()
-  timestamp: Date;
+  timestamp: number;
 
   @Field(() => User)
   author: User;
