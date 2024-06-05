@@ -24,16 +24,16 @@ jobs:
     - name: Build
       run: npm run build
 
-    - name: Build to Docker Hub
-      run: docker build -t ghcr.io/ilyesb36/web_project:latest .
+    - name: Build Docker image
+      run: docker build -t ilyes/web_project:latest .
 
-    - name: Login to GitHub Container Registry
+    - name: Login to Docker Hub
       uses: docker/login-action@v1
       with:
-        registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.SECRET_TOKEN }}
+        registry: docker.io
+        username: ilyesefrei
+        password: ilyesefrei
         
-    - name: Push to GitHub Container Registry
+    - name: Push to Docker Hub
       run: |
-        docker push ghcr.io/ilyesb36/web_project:latest
+        docker push ilyes/web_project:latest
