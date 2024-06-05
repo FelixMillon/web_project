@@ -15,6 +15,7 @@ type LoginResponse {
 }
 
 type Query {
+  findOneByEmail(email: String!): User
   users: [User!]!
 }
 

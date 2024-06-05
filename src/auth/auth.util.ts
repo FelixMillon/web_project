@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.model';
 

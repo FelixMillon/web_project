@@ -12,7 +12,8 @@ export class UsersService {
   ) {}
 
   async findOneByEmail(email: string): Promise<User | null> {
-    return this.redisService.get(`user:${email}`);
+    const user = await this.redisService.get(`user:${email}`);
+    return user ? (user as User) : null;
   }
 
   async create(user: Partial<User>): Promise<User> {

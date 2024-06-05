@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
 import { User } from './user.model';
@@ -25,5 +25,10 @@ export class UsersController {
     }
     console.log('loginUser - User validated');
     return this.authService.login(user);
+  }
+
+  @Get(':email')
+  async findOneByEmail(@Param('email') email: string): Promise<User | null> {
+    return this.usersService.findOneByEmail(email);
   }
 }

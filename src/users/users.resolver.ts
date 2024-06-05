@@ -3,6 +3,7 @@ import { UsersService } from './users.service';
 import { AuthService } from '../auth/auth.service';
 import { User } from './user.model';
 import { LoginResponse } from '../auth/dto/login-response.dto';
+
 @Resolver(() => User)
 export class UsersResolver {
   constructor(
@@ -31,6 +32,11 @@ export class UsersResolver {
     }
     const loginResult = await this.authService.login(user);
     return loginResult;
+  }
+
+  @Query(() => User, { nullable: true })
+  async findOneByEmail(@Args('email') email: string): Promise<User | null> {
+    return this.usersService.findOneByEmail(email);
   }
 
   @Query(() => [User])
