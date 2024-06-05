@@ -14,24 +14,33 @@ export class UserResolver {
 
   @Mutation(() => User)
   createUser(
-    @Args('username') username: string, 
-    @Args('email') email: string, 
+    @Args('email') email: string,
+    @Args('pseudo') pseudo: string,
+    @Args('name') name: string,
     @Args('password') password: string,
   ): User {
-    return this.userService.create(username, email, password);
+    return this.userService.create(
+      email,
+      pseudo,
+      name,
+      password
+    );
   }
 
   @Mutation(() => User)
   updateUser(
-    @Args('id') id: string, 
-    @Args('username') username: string, 
-    @Args('email') email: string,
+    @Args('id') id: string,
+    @Args('email') email: string | null,
+    @Args('pseudo') pseudo: string | null,
+    @Args('name') name: string | null
   ): User {
-    return this.userService.update(id, username, email);
+    // recuperer id via tokens
+    return this.userService.update(id, email, pseudo, name);
   }
 
   @Mutation(() => Boolean)
   deleteUser(@Args('id') id: string): boolean {
+    // recuperer id via tokens
     return this.userService.delete(id);
   }
 
@@ -40,11 +49,12 @@ export class UserResolver {
     @Args('email') email: string, 
     @Args('password') password: string,
   ): string {
-    return this.userService.logIn(email, password); // Return JWT token
+    return this.userService.logIn(email, password);
   }
 
   @Query(() => [Conversation])
   getAllConversations(@Args('userId') userId: string): Conversation[] {
+    // recuperer id via tokens
     return this.userService.getAllConversations(userId);
   }
 }

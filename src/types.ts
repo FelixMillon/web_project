@@ -1,5 +1,5 @@
 export type User = {
-    id: number;
+    id: string;
     email: string;
     pseudo: string;
     name: string;
@@ -8,18 +8,18 @@ export type User = {
 };
 
 export type Conversation = {
-    id: number;
+    id: string;
     name: string;
     users: User[];
     owners: User[];
-    timestamp: Date;
+    timestamp: number;
 };
 
 export type Message = {
     id: string;
     conversation: Conversation;
     eventType: string;
-    timestamp: Date;
+    timestamp: number;
     author: User;
     content: string;
 };

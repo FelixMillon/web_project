@@ -2,6 +2,55 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Conversation {
+  id: ID!
+  name: String!
+  users: [User!]!
+  owners: [User!]!
+  timestamp: Float!
+}
+
+type User {
+  id: ID!
+  email: String!
+  pseudo: String!
+  name: String!
+  password: String!
+  conversations: [Conversation!]!
+}
+
+type Message {
+  id: ID!
+  conversation: Conversation!
+  eventType: String!
+  timestamp: Float!
+  author: User!
+  content: String!
+}
+
 type Query {
   getResult: String!
+  getMessageById(id: String!): Message!
+  getMessageByAuthor(authorId: String!): [Message!]!
+  getUserById(id: String!): User!
+  getAllConversations(userId: String!): [Conversation!]!
+  getParticipants(id: String!): [User!]!
+  getOwners(id: String!): [User!]!
+}
+
+type Mutation {
+  publishMessage(conversationId: String!, eventType: String!, authorId: String!, content: String!): Message!
+  deleteMessageById(id: String!): Boolean!
+  deleteMessageByAuthor(authorId: String!): Boolean!
+  deleteMessageByConversationId(conversationId: String!): Boolean!
+  createUser(email: String!, pseudo: String!, name: String!, password: String!): User!
+  updateUser(id: String!, email: String!, pseudo: String!, name: String!): User!
+  deleteUser(id: String!): Boolean!
+  logIn(email: String!, password: String!): String!
+  createConversation(ownersId: [String!]!, name: String!): Conversation!
+  updateConversation(id: String!, name: [String!]!): Conversation!
+  joinConversation(id: String!, userId: String!): Conversation!
+  leaveConversation(id: String!, userId: String!): Conversation!
+  invitesTo(id: String!, userId: String!): Conversation!
+  expulseOff(id: String!, userId: String!): Conversation!
 }

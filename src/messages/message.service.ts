@@ -1,18 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import { Message } from './message.model';
 import { User } from '../users/user.model';
+import { Conversation } from '../conversations/conversation.model';
 
 @Injectable()
 export class MessageService {
   private messages: Message[] = [];
+  private conversations: Conversation[] = [];
+  private users: User[] = [];
 
-  publish(conversationId: string, content: string, senderId: string): Message {
+  publish(
+    conversationId: string,
+    eventType: string,
+    authorId: string,
+    content: string
+  ): Message {
+    const conversation = this.conversations.find(conv => conv.id === conversationId)
+    const author = this.users.find(user => user.id === authorId)
     const message = {
       id: (this.messages.length + 1).toString(),
-      content,
-      sender: { id: senderId, username: '', email: '', password: '' } as User,
-      timestamp: new Date().toISOString(),
-      conversationId, 
+      conversation,
+      eventType,
+      timestamp: Date.now(),
+      author,
+      content
     };
     this.messages.push(message);
     return message;
@@ -28,12 +39,12 @@ export class MessageService {
   }
 
   deleteByAuthor(authorId: string): boolean {
-    this.messages = this.messages.filter(msg => msg.sender.id !== authorId);
+    this.messages = this.messages.filter(msg => msg.author.id !== authorId);
     return true;
   }
 
   deleteByConversationId(conversationId: string): boolean {
-    this.messages = this.messages.filter(msg => msg.conversationId !== conversationId);
+    this.messages = this.messages.filter(msg => msg.conversation.id !== conversationId);
     return true;
   }
 
@@ -42,6 +53,6 @@ export class MessageService {
   }
 
   getByAuthor(authorId: string): Message[] {
-    return this.messages.filter(msg => msg.sender.id === authorId);
+    return this.messages.filter(msg => msg.author.id === authorId);
   }
 }
