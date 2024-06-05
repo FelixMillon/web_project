@@ -1,4 +1,5 @@
 import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { Conversation } from '../conversations/conversation.model';
 
 @ObjectType()
 export class User {
@@ -6,11 +7,17 @@ export class User {
   id: string;
 
   @Field()
-  username: string;
-
-  @Field()
   email: string;
 
   @Field()
+  pseudo: string;
+
+  @Field()
+  name: string;
+
+  @Field()
   password: string; 
+
+  @Field(() => [Conversation])
+  conversations: Conversation[]; 
 }

@@ -5,62 +5,73 @@ import { User } from '../users/user.model';
 @Injectable()
 export class ConversationService {
   private conversations: Conversation[] = [];
+  private users: User[] = [];
 
-  create(userIds: string[]): Conversation {
+  create(ownersId: string[], name: string, ): Conversation {
+    let owners = []
+    for(let ownerId in ownersId){
+      owners.push(this.users.find(user => user.id === ownerId))
+    }
     const conversation = {
       id: (this.conversations.length + 1).toString(),
-      participants: userIds.map(id => ({ id, username: '', email: '', password: '' } as User)),
-      owners: [],
+      name,
+      users: owners,
+      owners,
+      timestamp: Date.now()
     };
-    this.conversations.push(conversation);
+    this.conversations.push(conversation)
     return conversation;
   }
 
-  update(id: string, userIds: string[]): Conversation {
+  update(id: string, name: string): Conversation {
     const conversation = this.conversations.find(conv => conv.id === id);
     if (conversation) {
-      conversation.participants = userIds.map(id => ({ id, username: '', email: '', password: '' } as User));
+      conversation.name = name;
     }
     return conversation;
   }
 
-  join(id: string, userId: string): Conversation {
+  // modifier cette fonction en utilisant le token
+  join(id: string, userId: string): boolean {
     const conversation = this.conversations.find(conv => conv.id === id);
     if (conversation) {
-      const user = { id: userId, username: '', email: '', password: '' } as User;
-      conversation.participants.push(user);
+      conversation.users.push(this.users.find(user => user.id === userId));
+      return true
     }
-    return conversation;
+    return false;
   }
 
-  leave(id: string, userId: string): Conversation {
+  // modifier cette fonction en utilisant le token
+  leave(id: string, userId: string): boolean {
     const conversation = this.conversations.find(conv => conv.id === id);
     if (conversation) {
-      conversation.participants = conversation.participants.filter(part => part.id !== userId);
+      conversation.users = conversation.users.filter(user => user.id !== userId);
+      return true
     }
-    return conversation;
+    return false;
   }
 
-  invitesTo(id: string, userId: string): Conversation {
+  invitesTo(id: string, userId: string): boolean {
     const conversation = this.conversations.find(conv => conv.id === id);
     if (conversation) {
-      const user = { id: userId, username: '', email: '', password: '' } as User;
-      conversation.owners.push(user);
+      conversation.users.push(this.users.find(user => user.id === userId));
+      return true
     }
-    return conversation;
+    return false;
   }
 
-  expulseOff(id: string, userId: string): Conversation {
+  expulseOff(id: string, userId: string): boolean {
     const conversation = this.conversations.find(conv => conv.id === id);
     if (conversation) {
-      conversation.participants = conversation.participants.filter(part => part.id !== userId);
+      conversation.users = conversation.users.filter(user => user.id !== userId);
+      return true
     }
-    return conversation;
+    return false;
   }
 
   getParticipants(id: string): User[] {
     const conversation = this.conversations.find(conv => conv.id === id);
-    return conversation ? conversation.participants : [];
+    return conversation ? conversation.users : [];
   }
 
   getOwners(id: string): User[] {

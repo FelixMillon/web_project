@@ -8,32 +8,56 @@ export class ConversationResolver {
   constructor(private conversationService: ConversationService) {}
 
   @Mutation(() => Conversation)
-  createConversation(@Args('userIds', { type: () => [String] }) userIds: string[]): Conversation {
-    return this.conversationService.create(userIds);
+  createConversation(
+    @Args('ownersId', { type: () => [String] }) ownersId: string[],
+    @Args('name') name: string
+  ): Conversation {
+    //utiliser token pour récupérer 1er ID
+    return this.conversationService.create(ownersId, name);
   }
 
   @Mutation(() => Conversation)
-  updateConversation(@Args('id') id: string, @Args('userIds', { type: () => [String] }) userIds: string[]): Conversation {
-    return this.conversationService.update(id, userIds);
+  updateConversation(
+    @Args('id') id: string,
+    @Args('name', { type: () => [String] }) name: string
+  ): Conversation {
+    //verifier avec token si droit de modification (id dans owners de la conv)
+    return this.conversationService.update(id, name);
   }
 
   @Mutation(() => Conversation)
-  joinConversation(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+  joinConversation(
+    @Args('id') id: string,
+    @Args('userId') userId: string
+  ): boolean {
+    //utiliser token pour id
     return this.conversationService.join(id, userId);
   }
 
   @Mutation(() => Conversation)
-  leaveConversation(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+  leaveConversation(
+    @Args('id') id: string,
+    @Args('userId') userId: string
+  ): boolean {
+    //utiliser token pour id
     return this.conversationService.leave(id, userId);
   }
 
   @Mutation(() => Conversation)
-  invitesTo(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+  invitesTo(
+    @Args('id') id: string,
+    @Args('userId') userId: string
+  ): boolean {
+    //utiliser token pour vérifier droit sur la conv
     return this.conversationService.invitesTo(id, userId);
   }
 
   @Mutation(() => Conversation)
-  expulseOff(@Args('id') id: string, @Args('userId') userId: string): Conversation {
+  expulseOff(
+    @Args('id') id: string,
+    @Args('userId') userId: string
+  ): boolean {
+    //utiliser token pour vérifier droit sur la conv
     return this.conversationService.expulseOff(id, userId);
   }
 
