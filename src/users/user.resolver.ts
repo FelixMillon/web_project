@@ -14,8 +14,8 @@ export class UserResolver {
   ) {}
 
   @Query(() => User)
-  getUserById(@Args('id') id: string): User {
-    return this.userService.findById(id);
+  async getUserById(@Args('id') id: string): Promise<User> {
+    return await this.userService.findById(id);
   }
 
   @Mutation(() => LoginResponse)
@@ -44,7 +44,7 @@ export class UserResolver {
   }
 
   @Mutation(() => User)
-  updateUser(
+  async updateUser(
     @Args('token') token: string,
     @Args('email', { defaultValue: null }) email: string | null,
     @Args('pseudo', { defaultValue: null }) pseudo: string | null,
@@ -56,15 +56,15 @@ export class UserResolver {
   }
 
   @Mutation(() => Boolean)
-  deleteUser(@Args('token') token: string): boolean {
+  async deleteUser(@Args('token') token: string): Promise<boolean> {
     const payload = getPayload(token)
     return this.userService.delete(payload.id);
   }
 
   @Query(() => [Conversation])
-  getAllConversations(@Args('token') token: string): Conversation[] {
+  async getAllConversations(@Args('token') token: string): Promise<Conversation[] | null> {
     const payload = getPayload(token)
-    return this.userService.getAllConversations(payload.id);
+    return await this.userService.getAllConversations(payload.id);
   }
 
   @Query(() => User, { nullable: true })

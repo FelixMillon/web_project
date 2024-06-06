@@ -16,13 +16,28 @@ export class UserService {
   ) {}
   private users: User[] = [];
 
-  getAllConversations(id: string): Conversation[] {
-    const user = this.users.find(user => user.id === id);
+  async getAllConversations(id: string): Promise<Conversation[] | null> {
+    const user = await this.findById(id)
     return user.conversations
   }
 
-  findById(id: string): User {
-    return this.users.find(user => user.id === id);
+  async findById(id: string): Promise<User | null> {
+    try {
+      const user = await this.prisma.user.findUniqueOrThrow({
+          where: {
+            id
+          }
+      });
+      return user as User
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+              throw new BadRequestException("User doesn't exist");
+          }
+          throw new BadRequestException("Error while getting user");
+      }
+    }
+    return null
   }
 
   async create(newUser: Partial<User>): Promise<User> {
@@ -39,7 +54,7 @@ export class UserService {
   }
 
   async update(id: string ,newUserInfo: Partial<User | null>): Promise<User> {
-    if (await this.findOneById(id)) {
+    if (await this.findById(id)) {
       let updates = {}
       if(newUserInfo.email){
         updates["email"] = newUserInfo.email;
@@ -66,22 +81,21 @@ export class UserService {
     return null
   }
 
-  delete(id: string): boolean {
-    const index = this.users.findIndex(user => user.id === id);
-    if (index !== -1) {
-      this.users.splice(index, 1);
-      return true;
+  async delete(id: string): Promise<boolean> {
+      try {
+        await this.prisma.user.delete({
+            where: { id },
+        });
+        return true;
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            throw new BadRequestException("Task doesn't exist");
+        }
+        throw new BadRequestException(`Error while deleting task: ${error.message}`);
     }
     return false;
   }
 
-  logIn(email: string, password: string): string {
-    const user = this.users.find(user => user.email === email && user.password === password);
-    if (user) {
-      return 'JWT_TOKEN';
-    }
-    return null;
-  }
   async findOneByEmail(email: string): Promise<User | null> {
     try {
       const user = await this.prisma.user.findUniqueOrThrow({
@@ -107,25 +121,6 @@ export class UserService {
       return users as User[]
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          throw new BadRequestException("Error while getting user");
-      }
-    }
-    return null
-  }
-
-  async findOneById(id: string): Promise<User | null> {
-    try {
-      const user = await this.prisma.user.findUniqueOrThrow({
-          where: {
-            id
-          }
-      });
-      return user as User
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (error.code === 'P2025') {
-              throw new BadRequestException("User doesn't exist");
-          }
           throw new BadRequestException("Error while getting user");
       }
     }
