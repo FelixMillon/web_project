@@ -1,115 +1,108 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UsersController } from './users.controller';
-import { UsersService } from './users.service';
-import { AuthService } from '../auth/auth.service';
-import { User } from './user.model';
-import { UnauthorizedException } from '@nestjs/common';
+import { UserResolver } from './user.resolver';
+import { UserService } from './user.service';
 
-describe('UsersController', () => {
-  let usersController: UsersController;
-  let usersService: UsersService;
-  let authService: AuthService;
 
-  const mockUser = {
-    id: '1',
-    email: 'toto@gmail.com',
-    pseudo: 'toto',
-    name: 'toto',
-    password: 'Azerty@123',
-  };
+describe('UserResolver', () => {
+  let resolver: UserResolver;
+  let service: UserService;
 
-  const mockUsersService = {
-    create: jest.fn().mockImplementation((user: Partial<User>) => {
-      return {
-        id: '1',
-        ...user,
-      };
+  const mockUserService = {
+    findById: jest.fn((id: string) => ({ id, email: 'test@example.com', pseudo: 'test', name: 'Test User', password: 'password' })),
+    create: jest.fn((email: string, pseudo: string, name: string, password: string) => {
+      if (!email.includes('@')) {
+        throw new Error('Invalid user data');
+      }
+      return { id: '1', email, pseudo, name, password };
     }),
-    findOneByEmail: jest.fn().mockImplementation((email: string) => {
-      return mockUser.email === email ? mockUser : null;
-    }),
-  };
-
-  const mockAuthService = {
-    validateUser: jest.fn().mockImplementation((email: string, password: string) => {
-      return email === mockUser.email && password === mockUser.password ? mockUser : null;
-    }),
-    login: jest.fn().mockImplementation((user: User) => {
-      return { access_token: 'fake-jwt-token' };
-    }),
+    update: jest.fn((id: string, email: string | null, pseudo: string | null, name: string | null) => ({ id, email, pseudo, name, password: 'password' })),
+    delete: jest.fn((id: string) => true),
+    logIn: jest.fn((email: string, password: string) => 'token'),
+    getAllConversations: jest.fn(() => []),
   };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [UsersController],
       providers: [
-        { provide: UsersService, useValue: mockUsersService },
-        { provide: AuthService, useValue: mockAuthService },
+        UserResolver,
+        { provide: UserService, useValue: mockUserService },
       ],
     }).compile();
 
-    usersController = module.get<UsersController>(UsersController);
-    usersService = module.get<UsersService>(UsersService);
-    authService = module.get<AuthService>(AuthService);
+    resolver = module.get<UserResolver>(UserResolver);
+    service = module.get<UserService>(UserService);
   });
 
   it('should be defined', () => {
-    expect(usersController).toBeDefined();
+    expect(resolver).toBeDefined();
   });
 
-  describe('createUser', () => {
-    it('should create and return a user', async () => {
-      const userDto = {
-        email: 'toto@gmail.com',
-        pseudo: 'toto',
-        name: 'toto',
-        password: 'Azerty@123',
-      };
-      expect(await usersController.createUser(userDto)).toEqual({
-        id: '1',
-        ...userDto,
-      });
-      expect(usersService.create).toHaveBeenCalledWith(userDto);
+  it('should get a user by id', () => {
+    const id = '1';
+    expect(resolver.getUserById(id)).toEqual({
+      id,
+      email: 'test@example.com',
+      pseudo: 'test',
+      name: 'Test User',
+      password: 'password',
     });
-
-    it('should return an error for invalid user data', async () => {
-      const invalidUserDto = {
-        email: 'invalid-email',
-        pseudo: 'toto',
-        name: 'toto',
-        password: 'Azerty@123',
-      };
-      mockUsersService.create.mockImplementationOnce(() => {
-        throw new Error('Invalid user data');
-      });
-      await expect(usersController.createUser(invalidUserDto)).rejects.toThrow('Invalid user data');
-    });
+    expect(service.findById).toHaveBeenCalledWith(id);
   });
 
-  describe('loginUser', () => {
-    it('should return a JWT token for valid credentials', async () => {
-      const loginDto = { email: 'toto@gmail.com', password: 'Azerty@123' };
-      expect(await usersController.loginUser(loginDto)).toEqual({ access_token: 'fake-jwt-token' });
-      expect(authService.validateUser).toHaveBeenCalledWith(loginDto.email, loginDto.password);
-      expect(authService.login).toHaveBeenCalledWith(mockUser);
+  it('should create a user', () => {
+    const email = 'test@example.com';
+    const pseudo = 'test';
+    const name = 'Test User';
+    const password = 'password';
+    expect(resolver.createUser(email, pseudo, name, password)).toEqual({
+      id: '1',
+      email,
+      pseudo,
+      name,
+      password,
     });
-
-    it('should throw an UnauthorizedException for invalid credentials', async () => {
-      const loginDto = { email: 'toto@gmail.com', password: 'wrongpassword' };
-      await expect(usersController.loginUser(loginDto)).rejects.toThrow(UnauthorizedException);
-    });
+    expect(service.create).toHaveBeenCalledWith(email, pseudo, name, password);
   });
 
-  describe('findOneByEmail', () => {
-    it('should return a user by email', async () => {
-      expect(await usersController.findOneByEmail('toto@gmail.com')).toEqual(mockUser);
-      expect(usersService.findOneByEmail).toHaveBeenCalledWith('toto@gmail.com');
-    });
+  it('should return an error for invalid user data', () => {
+    const email = 'invalid-email';
+    const pseudo = 'test';
+    const name = 'Test User';
+    const password = 'password';
+    expect(() => resolver.createUser(email, pseudo, name, password)).toThrow('Invalid user data');
+  });
 
-    it('should return null if user is not found', async () => {
-      mockUsersService.findOneByEmail.mockReturnValueOnce(null);
-      expect(await usersController.findOneByEmail('notfound@example.com')).toBeNull();
-      expect(usersService.findOneByEmail).toHaveBeenCalledWith('notfound@example.com');
+  it('should update a user', () => {
+    const id = '1';
+    const email = 'updated@example.com';
+    const pseudo = 'updated';
+    const name = 'Updated User';
+    expect(resolver.updateUser(id, email, pseudo, name)).toEqual({
+      id,
+      email,
+      pseudo,
+      name,
+      password: 'password',
     });
+    expect(service.update).toHaveBeenCalledWith(id, email, pseudo, name);
+  });
+
+  it('should delete a user', () => {
+    const id = '1';
+    expect(resolver.deleteUser(id)).toEqual(true);
+    expect(service.delete).toHaveBeenCalledWith(id);
+  });
+
+  it('should log in a user', () => {
+    const email = 'test@example.com';
+    const password = 'password';
+    expect(resolver.logIn(email, password)).toEqual('token');
+    expect(service.logIn).toHaveBeenCalledWith(email, password);
+  });
+
+  it('should get all conversations for a user', () => {
+    const userId = '1';
+    expect(resolver.getAllConversations(userId)).toEqual([]);
+    expect(service.getAllConversations).toHaveBeenCalledWith(userId);
   });
 });
