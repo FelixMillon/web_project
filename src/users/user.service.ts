@@ -14,7 +14,6 @@ export class UserService {
     @Inject(forwardRef(() => PrismaService))
     private prisma: PrismaService
   ) {}
-  private users: User[] = [];
 
   async getAllConversations(id: string): Promise<Conversation[] | null> {
     const user = await this.findById(id)

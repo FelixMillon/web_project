@@ -16,5 +16,5 @@ export class Conversation {
   owners: User[];
 
   @Field()
-  timestamp: number;
+  timestamp: Date;
 }

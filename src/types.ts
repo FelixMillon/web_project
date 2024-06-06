@@ -12,14 +12,14 @@ export type Conversation = {
     name: string;
     users: User[];
     owners: User[];
-    timestamp: number;
+    timestamp: string;
 };
 
 export type Message = {
     id: string;
     conversation: Conversation;
     eventType: string;
-    timestamp: number;
+    timestamp: string;
     author: User;
     content: string;
 };

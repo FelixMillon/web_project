@@ -14,7 +14,7 @@ export class Message {
   eventType: string;
 
   @Field()
-  timestamp: number;
+  timestamp: Date;
 
   @Field(() => User)
   author: User;

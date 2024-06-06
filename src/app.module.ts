@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { BullQueueModule } from './bull/bull.module';
 import { GraphqlModule } from './graphql/graphql.module';
 import { ConfigModule } from '@nestjs/config';
-import { UsersModule } from './users/user.module';
+import { UserModule } from './users/user.module';
 import { RedisModule } from './redis/redis.module';
 import { DatabaseModule } from './infrastructure/database/database.module';
 import { AuthModule } from './auth/auth.module';
@@ -23,7 +23,7 @@ import { UserService } from './users/user.service';
       isGlobal: true,
     }),
     GraphqlModule,
-    UsersModule,
+    UserModule,
     RedisModule,
     DatabaseModule,
     AuthModule,
