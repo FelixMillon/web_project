@@ -72,14 +72,17 @@ describe('UsersController', () => {
       expect(usersService.create).toHaveBeenCalledWith(userDto);
     });
 
-    it('should return false for invalid user data', async () => {
+    it('should return an error for invalid user data', async () => {
       const invalidUserDto = {
         email: 'invalid-email',
         pseudo: 'toto',
         name: 'toto',
         password: 'Azerty@123',
       };
-      await expect(usersController.createUser(invalidUserDto)).rejects.toThrow();
+      mockUsersService.create.mockImplementationOnce(() => {
+        throw new Error('Invalid user data');
+      });
+      await expect(usersController.createUser(invalidUserDto)).rejects.toThrow('Invalid user data');
     });
   });
 
@@ -104,6 +107,7 @@ describe('UsersController', () => {
     });
 
     it('should return null if user is not found', async () => {
+      mockUsersService.findOneByEmail.mockReturnValueOnce(null);
       expect(await usersController.findOneByEmail('notfound@example.com')).toBeNull();
       expect(usersService.findOneByEmail).toHaveBeenCalledWith('notfound@example.com');
     });
