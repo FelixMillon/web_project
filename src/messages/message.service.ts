@@ -32,7 +32,7 @@ export class MessageService {
       id: uuidv4(),
       conversation,
       eventType,
-      timestamp: Date.now(),
+      timestamp: new Date,
       author,
       content
     };

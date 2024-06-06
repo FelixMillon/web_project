@@ -1,73 +1,90 @@
+import { UnauthorizedException  } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { Conversation } from './conversation.model';
 import { ConversationService } from './conversation.service';
+import { getPayload } from '../auth/auth.util';
 import { User } from '../users/user.model';
 
 @Resolver(() => Conversation)
 export class ConversationResolver {
-  constructor(private conversationService: ConversationService) {}
+  constructor(
+    private conversationService: ConversationService
+  ) {}
 
   @Mutation(() => Conversation)
-  createConversation(
+  async createConversation(
+    @Args('token') token: string,
     @Args('ownersId', { type: () => [String] }) ownersId: string[],
     @Args('name') name: string
-  ): Conversation {
-    //utiliser token pour récupérer 1er ID
-    return this.conversationService.create(ownersId, name);
+  ): Promise<Conversation> {
+    const payload = getPayload(token)
+    ownersId.push(payload.id)
+    return await this.conversationService.create(ownersId, name);
   }
 
   @Mutation(() => Conversation)
-  updateConversation(
+  async updateConversation(
+    @Args('token') token: string,
     @Args('id') id: string,
     @Args('name', { type: () => [String] }) name: string
-  ): Conversation {
-    //verifier avec token si droit de modification (id dans owners de la conv)
-    return this.conversationService.update(id, name);
+  ): Promise<Conversation> {
+    await this.checkRightsOnConv(token, id)
+    return await this.conversationService.update(id, name);
   }
 
   @Mutation(() => Conversation)
-  joinConversation(
+  async joinConversation(
     @Args('id') id: string,
-    @Args('userId') userId: string
-  ): boolean {
-    //utiliser token pour id
-    return this.conversationService.join(id, userId);
+    @Args('token') token: string
+  ): Promise<boolean> {
+    const payload = getPayload(token)
+    return await this.conversationService.join(id, payload.id);
   }
 
   @Mutation(() => Conversation)
-  leaveConversation(
+  async leaveConversation(
     @Args('id') id: string,
-    @Args('userId') userId: string
-  ): boolean {
-    //utiliser token pour id
-    return this.conversationService.leave(id, userId);
+    @Args('token') token: string
+  ): Promise<boolean> {
+    const payload = getPayload(token)
+    return await this.conversationService.leave(id, payload.id);
   }
 
   @Mutation(() => Conversation)
-  invitesTo(
+  async invitesTo(
     @Args('id') id: string,
-    @Args('userId') userId: string
-  ): boolean {
-    //utiliser token pour vérifier droit sur la conv
-    return this.conversationService.invitesTo(id, userId);
+    @Args('userId') userId: string,
+    @Args('token') token: string
+  ): Promise<boolean> {
+    await this.checkRightsOnConv(token, id)
+    return await this.conversationService.join(id, userId);
   }
 
   @Mutation(() => Conversation)
-  expulseOff(
+  async expulseOff(
     @Args('id') id: string,
-    @Args('userId') userId: string
-  ): boolean {
-    //utiliser token pour vérifier droit sur la conv
-    return this.conversationService.expulseOff(id, userId);
+    @Args('userId') userId: string,
+    @Args('token') token: string
+  ): Promise<boolean> {
+    await this.checkRightsOnConv(token, id)
+    return await this.conversationService.leave(id, userId);
   }
 
   @Query(() => [User])
-  getParticipants(@Args('id') id: string): User[] {
-    return this.conversationService.getParticipants(id);
+  async getParticipants(@Args('id') id: string): Promise<User[]> {
+    return await this.conversationService.getParticipants(id);
   }
 
   @Query(() => [User])
-  getOwners(@Args('id') id: string): User[] {
-    return this.conversationService.getOwners(id);
+  async getOwners(@Args('id') id: string): Promise<User[]> {
+    return await this.conversationService.getOwners(id);
+  }
+
+  async checkRightsOnConv(token: string, id: string){
+    const payload = getPayload(token)
+    const owners = await this.conversationService.getOwners(id)
+    if(! owners.some(user => user.id === payload.id)){
+      throw new UnauthorizedException("Non autorisé gérer cette conversation");
+    }
   }
 }

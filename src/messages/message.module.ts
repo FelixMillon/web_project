@@ -2,10 +2,10 @@ import { Module } from '@nestjs/common';
 import { MessageService } from './message.service';
 import { MessageResolver } from './message.resolver';
 import { BullQueueModule } from '../bull/bull.module';
-import { UsersModule } from '../users/user.module';
+import { UserModule } from '../users/user.module';
 
 @Module({
-  imports: [BullQueueModule, UsersModule],
+  imports: [BullQueueModule, UserModule],
   providers: [MessageService, MessageResolver],
 })
 export class MessagesModule {}

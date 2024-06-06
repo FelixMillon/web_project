@@ -20,14 +20,19 @@ type Conversation {
   name: String!
   users: [User!]!
   owners: [User!]!
-  timestamp: Float!
+  timestamp: DateTime!
 }
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
 
 type Message {
   id: ID!
   conversation: Conversation!
   eventType: String!
-  timestamp: Float!
+  timestamp: DateTime!
   author: User!
   content: String!
 }
@@ -53,10 +58,10 @@ type Mutation {
   createUser(email: String!, pseudo: String!, name: String!, password: String!): User!
   updateUser(token: String!, email: String!, pseudo: String!, name: String!): User!
   deleteUser(token: String!): Boolean!
-  createConversation(ownersId: [String!]!, name: String!): Conversation!
-  updateConversation(id: String!, name: [String!]!): Conversation!
-  joinConversation(id: String!, userId: String!): Conversation!
-  leaveConversation(id: String!, userId: String!): Conversation!
-  invitesTo(id: String!, userId: String!): Conversation!
-  expulseOff(id: String!, userId: String!): Conversation!
+  createConversation(token: String!, ownersId: [String!]!, name: String!): Conversation!
+  updateConversation(token: String!, id: String!, name: [String!]!): Conversation!
+  joinConversation(id: String!, token: String!): Conversation!
+  leaveConversation(id: String!, token: String!): Conversation!
+  invitesTo(id: String!, userId: String!, token: String!): Conversation!
+  expulseOff(id: String!, userId: String!, token: String!): Conversation!
 }

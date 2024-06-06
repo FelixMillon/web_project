@@ -1,82 +1,129 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { Conversation } from './conversation.model';
 import { User } from '../users/user.model';
-import { v4 as uuidv4 } from 'uuid';
+import { PrismaService } from '../infrastructure/database/database.service';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ConversationService {
-  private conversations: Conversation[] = [];
-  private users: User[] = [];
+  constructor(
+    @Inject(forwardRef(() => PrismaService))
+    private prisma: PrismaService
+  ) {}
 
-  create(ownersId: string[], name: string, ): Conversation {
-    let owners = []
-    for(let ownerId in ownersId){
-      owners.push(this.users.find(user => user.id === ownerId))
+  async create(ownersId: string[], name: string, ): Promise<Conversation> {
+    try {
+      const insertedConversation = await this.prisma.conversation.create({
+          data: {
+              name,
+              users: {
+                connect: ownersId.map(id => ({ id })),
+              },
+              owners: {
+                connect: ownersId.map(id => ({ id })),
+              }
+          }
+      });
+      return insertedConversation as Conversation;
+    } catch (error) {
+        console.log(error)
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            throw new BadRequestException(`Error while creating new conversation: ${error}`);
+        }
     }
-    const conversation = {
-      id: uuidv4(),
-      name,
-      users: owners,
-      owners,
-      timestamp: Date.now()
-    };
-    this.conversations.push(conversation)
-    return conversation;
+    return null;
   }
 
-  update(id: string, name: string): Conversation {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    if (conversation) {
-      conversation.name = name;
+  async update(id: string, name: string): Promise<Conversation> {
+    try {
+      const updatedConv = await this.prisma.conversation.update({
+          where: { id },
+          data: {name}
+      });
+      return updatedConv as Conversation
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            throw new BadRequestException("Conversation doesn't exist");
+        }
+        throw new BadRequestException(`Error while updating conversation: ${error.message}`);
     }
-    return conversation;
   }
 
-  // modifier cette fonction en utilisant le token
-  join(id: string, userId: string): boolean {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    if (conversation) {
-      conversation.users.push(this.users.find(user => user.id === userId));
+  async join(id: string, userId: string): Promise<boolean> {
+    try {
+      await this.prisma.conversation.update({
+          where: { id },
+          data: {
+            users: {
+              connect: { id: userId },
+            },
+          }
+      });
       return true
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            throw new BadRequestException("Conversation doesn't exist");
+        }
+        return false;
     }
-    return false;
   }
 
-  // modifier cette fonction en utilisant le token
-  leave(id: string, userId: string): boolean {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    if (conversation) {
-      conversation.users = conversation.users.filter(user => user.id !== userId);
+  async leave(id: string, userId: string): Promise<boolean> {
+    try {
+      await this.prisma.conversation.update({
+          where: { id },
+          data: {
+            users: {
+              disconnect: { id: userId },
+            },
+          }
+      });
       return true
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            throw new BadRequestException("Conversation doesn't exist");
+        }
+        return false;
     }
-    return false;
   }
 
-  invitesTo(id: string, userId: string): boolean {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    if (conversation) {
-      conversation.users.push(this.users.find(user => user.id === userId));
-      return true
+  async getParticipants(id: string): Promise<User[]> {
+    try {
+      const conversations = await this.prisma.conversation.findUniqueOrThrow({
+          where: {
+            id
+          },
+          include: { users: true },
+      });
+      return conversations.users as User[]
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+              throw new BadRequestException("User doesn't exist");
+          }
+          throw new BadRequestException("Error while getting user");
+      }
     }
-    return false;
+    return null
   }
 
-  expulseOff(id: string, userId: string): boolean {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    if (conversation) {
-      conversation.users = conversation.users.filter(user => user.id !== userId);
-      return true
+  async getOwners(id: string): Promise<User[]> {
+    try {
+      const conversations = await this.prisma.conversation.findUniqueOrThrow({
+          where: {
+            id
+          },
+          include: { owners: true },
+      });
+      return conversations.owners as User[]
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+              throw new BadRequestException("User doesn't exist");
+          }
+          throw new BadRequestException("Error while getting user");
+      }
     }
-    return false;
-  }
-
-  getParticipants(id: string): User[] {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    return conversation ? conversation.users : [];
-  }
-
-  getOwners(id: string): User[] {
-    const conversation = this.conversations.find(conv => conv.id === id);
-    return conversation ? conversation.owners : [];
+    return null
   }
 }
