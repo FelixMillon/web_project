@@ -1,24 +1,21 @@
-// src/App.tsx
 import React from 'react';
-import { ApolloProvider } from '@apollo/client';
-import client from './apollo-client';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Home from './pages/Home';
+import Navbar from './components/Navbar';
 import Login from './pages/Login';
-import Signup from './pages/Signup';
+import Register from './pages/Register';
+import Conversations from './pages/Conversations';
 
-const App: React.FC = () => {
+function App() {
   return (
-    <ApolloProvider client={client}>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<Signup />} />
-        </Routes>
-      </Router>
-    </ApolloProvider>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/conversations" element={<Conversations />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
 export default App;

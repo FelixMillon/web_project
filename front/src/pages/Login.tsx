@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useMutation } from '@apollo/client';
-import { gql } from 'graphql-tag';
+import { useMutation, gql } from '@apollo/client';
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password)
+    login(email: $email, password: $password) {
+      access_token
+    }
   }
 `;
 
@@ -16,9 +17,13 @@ const Login: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login({ variables: { email, password } });
+      const response = await login({ variables: { email, password } });
+      const token = response.data.login.access_token;
+      localStorage.setItem('token', token);
+      alert('Login successful');
     } catch (err) {
       console.error(err);
+      alert('Login failed');
     }
   };
 
@@ -26,18 +31,25 @@ const Login: React.FC = () => {
     <div>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          required
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          required
+        />
         <button type="submit" disabled={loading}>Login</button>
       </form>
-      {data && <p>Logged in successfully!</p>}
-      {error && <p>Error logging in</p>}
+      {loading && <p>Loading...</p>}
+      {error && <p>Error: {error.message}</p>}
+      {data && <p>Success: {data.login.access_token}</p>}
     </div>
   );
 };
