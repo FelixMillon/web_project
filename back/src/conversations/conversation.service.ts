@@ -22,6 +22,10 @@ export class ConversationService {
               owners: {
                 connect: ownersId.map(id => ({ id })),
               }
+          },
+          include: {
+            users: true,
+            owners: true
           }
       });
       return insertedConversation as Conversation;
@@ -38,7 +42,11 @@ export class ConversationService {
     try {
       const updatedConv = await this.prisma.conversation.update({
           where: { id },
-          data: {name}
+          data: {name},
+          include: {
+            users: true,
+            owners: true
+          }
       });
       return updatedConv as Conversation
     } catch (error) {
@@ -113,7 +121,7 @@ export class ConversationService {
           where: {
             id
           },
-          include: { owners: true },
+          include: { owners: true }
       });
       return conversations.owners as User[]
     } catch (error) {

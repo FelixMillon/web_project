@@ -1,5 +1,6 @@
 
 import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
+import { UnauthorizedException  } from '@nestjs/common';
 import { UseGuards } from '@nestjs/common';
 import { GqlAuthGuard } from '../auth/gql-auth.guard';
 import { MessageService } from './message.service';
@@ -21,9 +22,9 @@ export class MessageResolver {
     @Args('eventType') eventType: string,
     @Args('token') token: string,
     @Args('content') content: string
-  ): Promise<Message> {
+  ): Promise<Partial<Message>> {
     const payload = getPayload(token)
-    const newMessage =  this.messageService.publish(
+    const newMessage = this.messageService.publish(
       conversationId,
       eventType,
       payload.id,
@@ -34,32 +35,45 @@ export class MessageResolver {
   }
 
   @Mutation(() => Boolean)
-  deleteMessageById(
+  async deleteMessageById(
     @Args('token') token: string,
     @Args('id') id: string
-  ): boolean {
+  ): Promise<boolean> {
+    this.checkIsMyMessage(token, id)
+    return this.messageService.deleteById(id);
+  }
+
+  @Mutation(() => Boolean)
+  async deleteMessageByAuthor(
+    @Args('token') token: string
+  ): Promise<boolean> {
     const payload = getPayload(token)
-    return this.messageService.deleteById(id, payload.id);
+    return await this.messageService.deleteByAuthor(payload.id);
   }
 
   @Mutation(() => Boolean)
-  deleteMessageByAuthor(@Args('authorId') authorId: string): boolean {
-    // utiliser le token pour vérifier que l'authorId du message correspond au token
-    return this.messageService.deleteByAuthor(authorId);
-  }
-
-  @Mutation(() => Boolean)
-  deleteMessageByConversationId(@Args('conversationId') conversationId: string): boolean {
-    return this.messageService.deleteByConversationId(conversationId);
+  async deleteMessageByConversationId(
+    @Args('conversationId') conversationId: string
+): Promise<boolean> {
+    return await this.messageService.deleteByConversationId(conversationId);
   }
 
   @Query(() => Message)
-  getMessageById(@Args('id') id: string): Message {
-    return this.messageService.getById(id);
+  async getMessageById(@Args('id') id: string): Promise<Partial<Message>> {
+    return await this.messageService.getById(id);
   }
 
   @Query(() => [Message])
-  getMessageByAuthor(@Args('authorId') authorId: string): Message[] {
-    return this.messageService.getByAuthor(authorId);
+  async getMessageByAuthor(@Args('token') token: string): Promise<Partial<Message>[]> {
+    const payload = getPayload(token)
+    return await this.messageService.getByAuthor(payload.id);
+  }
+
+  async checkIsMyMessage(token: string, id: string){
+    const payload = getPayload(token)
+    const message = await this.messageService.getById(id)
+    if(!(message.id == payload.id)){
+      throw new UnauthorizedException("Non autorisé à gérer ce message");
+    }
   }
 }

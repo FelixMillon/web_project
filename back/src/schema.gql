@@ -40,7 +40,7 @@ type Message {
 type Query {
   getResult: String!
   getMessageById(id: String!): Message!
-  getMessageByAuthor(authorId: String!): [Message!]!
+  getMessageByAuthor(token: String!): [Message!]!
   getUserById(id: String!): User!
   getAllConversations(token: String!): [Conversation!]!
   findOneByEmail(email: String!): User
@@ -52,7 +52,7 @@ type Query {
 type Mutation {
   publishMessage(conversationId: String!, eventType: String!, token: String!, content: String!): Message!
   deleteMessageById(token: String!, id: String!): Boolean!
-  deleteMessageByAuthor(authorId: String!): Boolean!
+  deleteMessageByAuthor(token: String!): Boolean!
   deleteMessageByConversationId(conversationId: String!): Boolean!
   login(email: String!, password: String!): LoginResponse!
   createUser(email: String!, pseudo: String!, name: String!, password: String!): User!

@@ -25,6 +25,9 @@ export class UserService {
       const user = await this.prisma.user.findUniqueOrThrow({
           where: {
             id
+          },
+          include: {
+            conversations: true
           }
       });
       return user as User
@@ -47,6 +50,9 @@ export class UserService {
           pseudo: newUser.pseudo,
           name: newUser.name,
           password: newUser.password
+        },
+        include: {
+          conversations: true
         }
     });
     return inserted as User;
@@ -67,7 +73,10 @@ export class UserService {
       try {
         const updatedUser = await this.prisma.user.update({
             where: { id },
-            data: updates
+            data: updates,
+            include: {
+              conversations: true
+            }
         });
         return updatedUser as User
       } catch (error) {
@@ -83,7 +92,7 @@ export class UserService {
   async delete(id: string): Promise<boolean> {
       try {
         await this.prisma.user.delete({
-            where: { id },
+            where: { id }
         });
         return true;
     } catch (error) {
@@ -100,6 +109,9 @@ export class UserService {
       const user = await this.prisma.user.findUniqueOrThrow({
           where: {
             email
+          },
+          include: {
+            conversations: true
           }
       });
       return user as User
@@ -116,7 +128,12 @@ export class UserService {
 
   async findAll(): Promise<User[] | null> {
     try {
-      const users = await this.prisma.user.findMany({});
+      const users = await this.prisma.user.findMany(
+        {
+          include: {
+            conversations: true
+          }
+        });
       return users as User[]
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
