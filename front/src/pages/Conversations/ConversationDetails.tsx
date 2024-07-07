@@ -4,20 +4,15 @@ import { useParams } from 'react-router-dom';
 import './ConversationDetails.css';
 
 // Requête pour récupérer les messages par auteur
-const GET_MESSAGES_BY_AUTHOR = gql`
-  query GetMessageByAuthor($token: String!) {
-    getMessageByAuthor(token: $token) {
+const GET_MESSAGES_BY_CONVERSATION = gql`
+  query getMessageByConversation($conversationId: String!) {
+    getMessageByConversation(conversationId: $conversationId) {
       id
       content
       author {
         id
         name
       }
-      conversation {
-        id
-        name
-      }
-      timestamp
     }
   }
 `;
@@ -63,9 +58,9 @@ const ConversationDetails: React.FC = () => {
     }
   }, [token]);
 
-  const { data, loading, error, refetch } = useQuery(GET_MESSAGES_BY_AUTHOR, {
-    variables: { token },
-    skip: !token,
+  const { data, loading, error, refetch } = useQuery(GET_MESSAGES_BY_CONVERSATION, {
+    variables: { conversationId },
+    skip: !conversationId,
   });
 
   const [sendMessage] = useMutation(SEND_MESSAGE, {
@@ -122,20 +117,14 @@ const ConversationDetails: React.FC = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-
-  const filteredMessages = data?.getMessageByAuthor.filter(
-    (message: any) => message.conversation.id === conversationId
-  );
-
-  // Récupérer le nom de la conversation depuis le premier message
-  const conversationName = filteredMessages.length > 0 ? filteredMessages[0].conversation.name : 'Conversation';
+  const messages = data?.getMessageByConversation || [];
 
   return (
     <div className="conversation-details-container">
-      <h1>{conversationName}</h1>
+      <h1>Conversation Details</h1>
       <h3>Messages:</h3>
       <ul>
-        {filteredMessages.map((message: any) => (
+        {messages.map((message: any) => (
           <li key={message.id}>
             <strong>{message.author.name}: </strong>
             {message.content} <em>({new Date(message.timestamp).toLocaleString()})</em>
