@@ -16,14 +16,17 @@ COPY back ./back
 # Changer de répertoire de travail pour le backend.
 WORKDIR /app/back
 
+# Installer Prisma CLI
+RUN npm install prisma --save-dev
+
 # Générer le client Prisma.
-RUN npm run prisma generate
+RUN npx prisma generate
 
 # Formater le schéma Prisma.
-RUN npm run prisma format
+RUN npx prisma format
 
 # Pousser les migrations Prisma.
-RUN npm run prisma db push
+RUN npx prisma db push
 
 # Construire l'application.
 RUN npm run build
