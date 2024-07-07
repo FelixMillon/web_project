@@ -3,9 +3,9 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { useParams } from 'react-router-dom';
 import './ConversationDetails.css';
 
-// Requête pour récupérer les messages par conversation
+// Requête pour récupérer les messages par auteur
 const GET_MESSAGES_BY_CONVERSATION = gql`
-  query GetMessageByConversation($conversationId: String!) {
+  query getMessageByConversation($conversationId: String!) {
     getMessageByConversation(conversationId: $conversationId) {
       id
       content
@@ -13,7 +13,6 @@ const GET_MESSAGES_BY_CONVERSATION = gql`
         id
         name
       }
-      timestamp
     }
   }
 `;
@@ -33,6 +32,7 @@ const SEND_MESSAGE = gql`
   }
 `;
 
+
 // Mutation pour inviter un utilisateur
 const INVITE_USER = gql`
   mutation InviteUser($token: String!, $conversationId: String!, $userId: String!) {
@@ -48,7 +48,7 @@ const INVITE_USER = gql`
 
 const ConversationDetails: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
-  const [token] = useState<string | null>(localStorage.getItem('token'));
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [messageContent, setMessageContent] = useState<string>('');
   const [inviteUserId, setInviteUserId] = useState<string>('');
 
@@ -117,25 +117,19 @@ const ConversationDetails: React.FC = () => {
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-
-  // Récupérer le nom de la conversation depuis les données
-  const conversationName = data?.getMessageByConversation.length > 0
-    ? data.getMessageByConversation[0].conversation.name
-    : 'Conversation';
+  const messages = data?.getMessageByConversation || [];
 
   return (
     <div className="conversation-details-container">
-      <h1>{conversationName}</h1>
+      <h1>Conversation Details</h1>
       <h3>Messages:</h3>
       <ul>
-        {data?.getMessageByConversation
-          .filter((message: any) => message.author) // Filtrer les messages sans auteur
-          .map((message: any) => (
-            <li key={message.id}>
-              <strong>{message.author.name}: </strong>
-              {message.content} <em>({new Date(message.timestamp).toLocaleString()})</em>
-            </li>
-          ))}
+        {messages.map((message: any) => (
+          <li key={message.id}>
+            <strong>{message.author.name}: </strong>
+            {message.content}
+          </li>
+        ))}
       </ul>
       <form onSubmit={handleSendMessage} className="send-message-form">
         <input
