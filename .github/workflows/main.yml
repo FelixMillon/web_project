@@ -22,6 +22,14 @@ jobs:
         username: ${{ secrets.DOCKER_HUB_USERNAME }}
         password: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
+    - name: Set up Docker Compose
+      run: |
+        cd back
+        docker-compose up -d
+
+    - name: Wait for services to be ready
+      run: sleep 30
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v2
       with:
