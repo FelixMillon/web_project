@@ -1,4 +1,4 @@
-# Utilisez l'image officielle de Node.js.
+# Utiliser l'image officielle de Node.js.
 FROM node:16
 
 # Définir le répertoire de travail.
@@ -18,6 +18,12 @@ WORKDIR /app/back
 
 # Installer Prisma CLI
 RUN npm install prisma --save-dev
+
+# Définir les variables d'environnement
+ENV JWT_SECRET_KEY="toto"
+ENV DATABASE_PORT="24000"
+ENV DATABASE_NAME="nestjs-final-test-db"
+ENV DATABASE_URL="postgresql://postgres:postgres@localhost:24000/nestjs-final-test-db?schema=public"
 
 # Générer le client Prisma.
 RUN npx prisma generate
