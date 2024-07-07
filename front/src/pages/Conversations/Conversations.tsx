@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
 import { useNavigate } from 'react-router-dom';
 import './Conversations.css';
@@ -27,9 +27,15 @@ const CREATE_CONVERSATION = gql`
 
 const Conversations: React.FC = () => {
   const [token, setToken] = useState<string | null>(null);
-  const [inputToken, setInputToken] = useState<string>('');
   const [newConversationName, setNewConversationName] = useState<string>('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      setToken(storedToken);
+    }
+  }, []);
 
   const { data, loading, error } = useQuery(GET_CONVERSATIONS, {
     variables: { token },
@@ -47,11 +53,6 @@ const Conversations: React.FC = () => {
       console.log('Conversation created:', data);
     },
   });
-
-  const handleTokenSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setToken(inputToken);
-  };
 
   const handleCreateConversation = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -74,20 +75,7 @@ const Conversations: React.FC = () => {
   };
 
   if (!token) {
-    return (
-      <div className="token-input-container">
-        <form onSubmit={handleTokenSubmit} className="token-form">
-          <input
-            type="text"
-            value={inputToken}
-            onChange={(e) => setInputToken(e.target.value)}
-            placeholder="Enter your token"
-            required
-          />
-          <button type="submit">Submit</button>
-        </form>
-      </div>
-    );
+    return <p>Loading token...</p>;  // Optionnel : Affichage d'un message pendant le chargement du token
   }
 
   if (loading) return <p>Loading...</p>;
