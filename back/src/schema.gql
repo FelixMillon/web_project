@@ -41,6 +41,7 @@ type Query {
   getResult: String!
   getMessageById(id: String!): Message!
   getMessageByAuthor(token: String!): [Message!]!
+  getMessageByConversation(conversationId: String!): [Message!]!
   getUserById(id: String!): User!
   getAllConversations(token: String!): [Conversation!]!
   findOneByEmail(email: String!): User

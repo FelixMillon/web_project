@@ -69,6 +69,11 @@ export class MessageResolver {
     return await this.messageService.getByAuthor(payload.id);
   }
 
+  @Query(() => [Message])
+  async getMessageByConversation(@Args('conversationId') conversationId: string): Promise<Partial<Message>[]> {
+    return await this.messageService.getByConversationId(conversationId);
+  }
+
   async checkIsMyMessage(token: string, id: string){
     const payload = getPayload(token)
     const message = await this.messageService.getById(id)

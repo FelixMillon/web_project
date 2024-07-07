@@ -114,4 +114,23 @@ export class MessageService {
     }
     return null
   }
+
+  async getByConversationId(conversationId: string): Promise<Partial<Message>[]> {
+    try {
+      const messages = await this.prisma.message.findMany({
+          where: {
+            conversationId
+          }
+      });
+      return messages
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+              throw new BadRequestException("Conversation doesn't exist");
+          }
+          throw new BadRequestException("Error while getting user");
+      }
+    }
+    return null
+  }
 }

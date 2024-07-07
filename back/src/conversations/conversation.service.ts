@@ -1,5 +1,6 @@
 import { Injectable, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { Conversation } from './conversation.model';
+import { Message } from '../messages/message.model';
 import { User } from '../users/user.model';
 import { PrismaService } from '../infrastructure/database/database.service';
 import { Prisma } from '@prisma/client';
