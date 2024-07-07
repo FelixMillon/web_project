@@ -23,3 +23,10 @@ export type Message = {
     author: User;
     content: string;
 };
+
+export type SendedMessage = {
+    conversationId: string;
+    eventType: string;
+    authorId: string;
+    content: string;
+};
