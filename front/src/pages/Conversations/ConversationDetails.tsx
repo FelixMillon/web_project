@@ -127,7 +127,7 @@ const ConversationDetails: React.FC = () => {
         {messages.map((message: any) => (
           <li key={message.id}>
             <strong>{message.author.name}: </strong>
-            {message.content} <em>({new Date(message.timestamp).toLocaleString()})</em>
+            {message.content}
           </li>
         ))}
       </ul>
