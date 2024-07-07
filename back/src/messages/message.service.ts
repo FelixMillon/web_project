@@ -115,22 +115,48 @@ export class MessageService {
     return null
   }
 
-  async getByConversationId(conversationId: string): Promise<Partial<Message>[]> {
+  async getByConversationId(conversationId: string): Promise<Message[]> {
     try {
-      const messages = await this.prisma.message.findMany({
-          where: {
-            conversationId
-          }
+      const messagesFromPrisma = await this.prisma.message.findMany({
+        where: {
+          conversationId
+        },
+        include: {
+          author: true
+        }
       });
-      return messages
+  
+      const messages: Message[] = messagesFromPrisma.map(messageFromPrisma => ({
+        id: messageFromPrisma.id,
+        conversation: {
+          id: messageFromPrisma.conversationId,
+          name: '',
+          users: [],
+          owners: [],
+          timestamp: messageFromPrisma.timestamp,
+        },
+        eventType: messageFromPrisma.eventType,
+        timestamp: messageFromPrisma.timestamp,
+        author: {
+          id: messageFromPrisma.author.id,
+          email: messageFromPrisma.author.email,
+          pseudo: messageFromPrisma.author.pseudo,
+          name: messageFromPrisma.author.name,
+          password: '',
+          conversations: [],
+        },
+        content: messageFromPrisma.content,
+      }));
+  
+      return messages;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-          if (error.code === 'P2025') {
-              throw new BadRequestException("Conversation doesn't exist");
-          }
-          throw new BadRequestException("Error while getting user");
+        if (error.code === 'P2025') {
+          throw new BadRequestException("Conversation doesn't exist");
+        }
+        throw new BadRequestException("Error while getting messages");
       }
+      throw new BadRequestException(`Unexpected error: ${error.message}`);
     }
-    return null
   }
 }
