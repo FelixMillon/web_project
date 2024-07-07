@@ -1,0 +1,67 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type LoginResponse {
+  access_token: String!
+}
+
+type User {
+  id: ID!
+  email: String!
+  pseudo: String!
+  name: String!
+  password: String!
+  conversations: [Conversation!]!
+}
+
+type Conversation {
+  id: ID!
+  name: String!
+  users: [User!]!
+  owners: [User!]!
+  timestamp: DateTime!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Message {
+  id: ID!
+  conversation: Conversation!
+  eventType: String!
+  timestamp: DateTime!
+  author: User!
+  content: String!
+}
+
+type Query {
+  getResult: String!
+  getMessageById(id: String!): Message!
+  getMessageByAuthor(token: String!): [Message!]!
+  getUserById(id: String!): User!
+  getAllConversations(token: String!): [Conversation!]!
+  findOneByEmail(email: String!): User
+  users: [User!]!
+  getParticipants(id: String!): [User!]!
+  getOwners(id: String!): [User!]!
+}
+
+type Mutation {
+  publishMessage(conversationId: String!, eventType: String!, token: String!, content: String!): Message!
+  deleteMessageById(token: String!, id: String!): Boolean!
+  deleteMessageByAuthor(token: String!): Boolean!
+  deleteMessageByConversationId(conversationId: String!): Boolean!
+  login(email: String!, password: String!): LoginResponse!
+  createUser(email: String!, pseudo: String!, name: String!, password: String!): User!
+  updateUser(token: String!, email: String!, pseudo: String!, name: String!): User!
+  deleteUser(token: String!): Boolean!
+  createConversation(token: String!, ownersId: [String!]!, name: String!): Conversation!
+  updateConversation(token: String!, id: String!, name: [String!]!): Conversation!
+  joinConversation(id: String!, token: String!): Conversation!
+  leaveConversation(id: String!, token: String!): Conversation!
+  invitesTo(id: String!, userId: String!, token: String!): Conversation!
+  expulseOff(id: String!, userId: String!, token: String!): Conversation!
+}
