@@ -34,8 +34,10 @@ const Conversations: React.FC = () => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
+    } else {
+      navigate('/');
     }
-  }, []);
+  }, [navigate]);
 
   const { data, loading, error } = useQuery(GET_CONVERSATIONS, {
     variables: { token },
@@ -73,10 +75,6 @@ const Conversations: React.FC = () => {
   const handleConversationClick = (conversationId: string) => {
     navigate(`/conversations/${conversationId}`);
   };
-
-  if (!token) {
-    return <p>Loading token...</p>;  // Optionnel : Affichage d'un message pendant le chargement du token
-  }
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;

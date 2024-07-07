@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { gql, useQuery, useMutation } from '@apollo/client';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import './ConversationDetails.css';
 
-// Requête pour récupérer les messages par auteur
+// Requête pour récupérer les messages par conversation
 const GET_MESSAGES_BY_CONVERSATION = gql`
   query getMessageByConversation($conversationId: String!) {
     getMessageByConversation(conversationId: $conversationId) {
@@ -13,6 +13,7 @@ const GET_MESSAGES_BY_CONVERSATION = gql`
         id
         name
       }
+      timestamp
     }
   }
 `;
@@ -32,7 +33,6 @@ const SEND_MESSAGE = gql`
   }
 `;
 
-
 // Mutation pour inviter un utilisateur
 const INVITE_USER = gql`
   mutation InviteUser($token: String!, $conversationId: String!, $userId: String!) {
@@ -46,22 +46,38 @@ const INVITE_USER = gql`
   }
 `;
 
+// Mutation pour supprimer un message
+const DELETE_MESSAGE = gql`
+  mutation DeleteMessage($token: String!, $id: String!) {
+    deleteMessageById(token: $token, id: $id)
+  }
+`;
+
 const ConversationDetails: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
+  const navigate = useNavigate();
+  const [token] = useState<string | null>(localStorage.getItem('token'));
   const [messageContent, setMessageContent] = useState<string>('');
   const [inviteUserId, setInviteUserId] = useState<string>('');
 
   useEffect(() => {
     if (!token) {
       console.error('Token not found');
+      navigate('/');
     }
-  }, [token]);
+  }, [token, navigate]);
 
   const { data, loading, error, refetch } = useQuery(GET_MESSAGES_BY_CONVERSATION, {
     variables: { conversationId },
     skip: !conversationId,
   });
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 5000); // Actualise toutes les 5 secondes
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   const [sendMessage] = useMutation(SEND_MESSAGE, {
     onCompleted: () => {
@@ -78,6 +94,15 @@ const ConversationDetails: React.FC = () => {
     },
     onCompleted: (data) => {
       console.log('User invited:', data);
+    },
+  });
+
+  const [deleteMessage] = useMutation(DELETE_MESSAGE, {
+    onCompleted: () => {
+      refetch(); // Refresh the list of messages after deleting a message
+    },
+    onError: (err) => {
+      console.error('DELETE_MESSAGE error:', err);
     },
   });
 
@@ -115,19 +140,36 @@ const ConversationDetails: React.FC = () => {
     }
   };
 
+  const handleDeleteMessage = async (messageId: string) => {
+    try {
+      await deleteMessage({
+        variables: {
+          token,
+          id: messageId,
+        },
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
   const messages = data?.getMessageByConversation || [];
+  const userId = token ? JSON.parse(atob(token.split('.')[1])).id : null;
 
   return (
     <div className="conversation-details-container">
       <h1>Conversation Details</h1>
       <h3>Messages:</h3>
-      <ul>
+      <ul className="message-list">
         {messages.map((message: any) => (
-          <li key={message.id}>
+          <li key={message.id} className={`message-item ${message.author.id === userId ? 'right' : 'left'}`}>
             <strong>{message.author.name}: </strong>
             {message.content}
+            {message.author.id === userId && (
+              <button className="delete-button" onClick={() => handleDeleteMessage(message.id)}>Delete</button>
+            )}
           </li>
         ))}
       </ul>

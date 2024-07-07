@@ -13,7 +13,7 @@ const LOGIN_MUTATION = gql`
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [login, { data, loading, error }] = useMutation(LOGIN_MUTATION);
+  const [login, { loading, error }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,11 +54,6 @@ const Login: React.FC = () => {
       </form>
       {loading && <p>Loading...</p>}
       {error && <p>Error: {error.message}</p>}
-      {data && (
-        <div className="success-container">
-          <p>Success: <span className="token">{data.login.access_token}</span></p>
-        </div>
-      )}
     </div>
   );
 };

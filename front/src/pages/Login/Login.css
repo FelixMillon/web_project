@@ -44,18 +44,3 @@
   .login-button:hover {
     background-color: #0056b3;
   }
-  
-  .success-container {
-    margin-top: 1rem;
-    padding: 1rem;
-    background-color: #e0f7fa;
-    border-left: 5px solid #007BFF;
-    border-radius: 4px;
-    word-break: break-word;
-  }
-  
-  .success-container .token {
-    font-family: 'Courier New', Courier, monospace;
-    color: #007BFF;
-  }
-  
