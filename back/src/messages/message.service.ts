@@ -10,7 +10,6 @@ export class MessageService {
     private prisma: PrismaService
   ) {}
 
-
   async publish(
     conversationId: string,
     eventType: string,

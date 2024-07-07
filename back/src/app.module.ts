@@ -16,6 +16,7 @@ import { ConversationResolver } from './conversations/conversation.resolver';
 import { ConversationService } from './conversations/conversation.service';
 import { UserResolver } from './users/user.resolver';
 import { UserService } from './users/user.service';
+import { MessageMQModule  } from './messagesMQ/messageMQ.module';
 
 @Module({
   imports: [
@@ -29,7 +30,8 @@ import { UserService } from './users/user.service';
     AuthModule,
     GraphqlModule,
     BullQueueModule,
-    HealthCheckModule
+    HealthCheckModule,
+    MessageMQModule
   ],
   controllers: [AppController],
   providers: [
