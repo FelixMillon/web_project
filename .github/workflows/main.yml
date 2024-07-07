@@ -29,6 +29,18 @@ jobs:
       run: npm ci
       working-directory: ./back
 
+    - name: Generate Prisma Client
+      run: npm run prisma generate
+      working-directory: ./back
+
+    - name: Format Prisma Schema
+      run: npm run prisma format
+      working-directory: ./back
+
+    - name: Push Prisma Migrations
+      run: npm run prisma db push
+      working-directory: ./back
+
     - name: Build
       run: npm run build
       working-directory: ./back
