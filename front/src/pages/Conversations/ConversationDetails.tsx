@@ -35,8 +35,8 @@ const SEND_MESSAGE = gql`
 
 // Mutation pour inviter un utilisateur
 const INVITE_USER = gql`
-  mutation InviteUser($token: String!, $conversationId: String!, $userId: String!) {
-    invitesTo(token: $token, id: $conversationId, userId: $userId) {
+  mutation invitesByEmail($token: String!, $conversationId: String!, $userEmail: String!) {
+    invitesByEmail(token: $token, id: $conversationId, userEmail: $userEmail) {
       id
       users {
         id
@@ -50,7 +50,7 @@ const ConversationDetails: React.FC = () => {
   const { conversationId } = useParams<{ conversationId: string }>();
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [messageContent, setMessageContent] = useState<string>('');
-  const [inviteUserId, setInviteUserId] = useState<string>('');
+  const [inviteUserEmail, setInviteUserEmail] = useState<string>('');
 
   useEffect(() => {
     if (!token) {
@@ -100,16 +100,16 @@ const ConversationDetails: React.FC = () => {
 
   const handleInviteUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!conversationId || !inviteUserId.trim()) return;
+    if (!conversationId || !inviteUserEmail.trim()) return;
     try {
       await inviteUser({
         variables: {
           token,
           conversationId,
-          userId: inviteUserId,
+          userEmail: inviteUserEmail,
         },
       });
-      setInviteUserId('');
+      setInviteUserEmail('');
     } catch (err) {
       console.error(err);
     }
@@ -144,9 +144,9 @@ const ConversationDetails: React.FC = () => {
       <form onSubmit={handleInviteUser} className="invite-user-form">
         <input
           type="text"
-          value={inviteUserId}
-          onChange={(e) => setInviteUserId(e.target.value)}
-          placeholder="Enter user ID to invite"
+          value={inviteUserEmail}
+          onChange={(e) => setInviteUserEmail(e.target.value)}
+          placeholder="Enter user email to invite"
           required
         />
         <button type="submit">Invite User</button>

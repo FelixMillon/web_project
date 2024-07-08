@@ -60,6 +60,17 @@ export class ConversationResolver {
     return await this.conversationService.join(id, userId);
   }
 
+  
+  @Mutation(() => Conversation)
+  async invitesByEmail(
+    @Args('id') id: string,
+    @Args('userEmail') userEmail: string,
+    @Args('token') token: string
+  ): Promise<boolean> {
+    await this.checkRightsOnConv(token, id)
+    return await this.conversationService.joinByEmail(id, userEmail);
+  }
+
   @Mutation(() => Conversation)
   async expulseOff(
     @Args('id') id: string,
