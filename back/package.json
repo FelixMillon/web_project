@@ -8,7 +8,8 @@
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start": "npm run prisma:generate && npm run prisma:format && npm run prisma:push && nest start",
+    "dotenvtest": "dotenv -e .env -c --",
+    "start": "npm run prisma:generate && npm run prisma:format && npm run prisma migrate dev && dotenv -e .env -c -- nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
@@ -41,6 +42,7 @@
     "bcrypt": "^5.1.1",
     "bull": "^4.12.9",
     "dotenv": "^16.4.5",
+    "dotenv-cli": "^7.4.2",
     "graphql": "^16.8.1",
     "graphql-tools": "^9.0.1",
     "ioredis": "^5.4.1",
