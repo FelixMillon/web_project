@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./back
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    volumes:
+      - ./back:/app
+      - /app/node_modules
+    depends_on:
+      - db
+
+  redis:
+    image: redis
+    restart: always
+    ports:
+      - "6379:6379"
+
+  postgres:
+    image: postgres:latest
+    ports:
+      - "24000:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/create-postgres-db.sql:/docker-entrypoint-initdb.d/create-postgres-db.sql
+
+volumes:
+  mongodb_data:
+  postgres_data:
