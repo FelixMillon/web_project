@@ -1,15 +1,17 @@
-FROM node:16
+# Utiliser l'image officielle de Node.js.
+FROM node:20
 
-WORKDIR /app
+# Définir le répertoire de travail.
+WORKDIR /app/backend
 
-COPY package*.json ./
-
-RUN npm install
-
+# Copier tout le code source dans le conteneur.
 COPY . .
 
-RUN npm run build
+# Installer les dépendances.
+RUN npm install
 
+# Exposer le port pour l'application backend.
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+# Commande par défaut pour lancer l'application.
+CMD ["npm", "start"]

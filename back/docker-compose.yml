@@ -6,10 +6,11 @@ services:
     restart: always
     ports:
       - "6379:6379"
+
   postgres:
     image: postgres:latest
     ports:
-      - "${DATABASE_PORT}:5432"
+      - "24000:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
