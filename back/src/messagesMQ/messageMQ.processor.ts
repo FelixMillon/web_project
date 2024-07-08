@@ -15,7 +15,6 @@ export class MessageMQProcessor {
     @Process('message-job')
     async handleMessage(job: Job) {
         const message: SendedMessage = job.data.message
-        console.log(message)
         try {
             const insertedMessage = await this.prisma.message.create({
                 data: message
