@@ -88,7 +88,7 @@ export class MessageService {
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
           if (error.code === 'P2025') {
-              throw new BadRequestException("User doesn't exist");
+              throw new BadRequestException("Message doesn't exist");
           }
           throw new BadRequestException("Error while getting user");
       }

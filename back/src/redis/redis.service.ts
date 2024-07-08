@@ -13,7 +13,6 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async onModuleInit() {
-    // it connects automatically
   }
 
   async onModuleDestroy() {
