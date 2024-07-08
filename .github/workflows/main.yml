@@ -40,6 +40,9 @@ jobs:
       - name: Wait for PostgreSQL to be ready
         run: sleep 30
 
+      - name: List running Docker containers
+        run: docker ps
+
       - name: Set up environment variables
         run: echo "DATABASE_URL=postgresql://postgres:postgres@postgres:5432/nestjs-final-test-db?schema=public" >> $GITHUB_ENV
 
