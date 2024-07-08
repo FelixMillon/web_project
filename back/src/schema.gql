@@ -64,5 +64,6 @@ type Mutation {
   joinConversation(id: String!, token: String!): Conversation!
   leaveConversation(id: String!, token: String!): Conversation!
   invitesTo(id: String!, userId: String!, token: String!): Conversation!
+  invitesByEmail(id: String!, userEmail: String!, token: String!): Conversation!
   expulseOff(id: String!, userId: String!, token: String!): Conversation!
 }
