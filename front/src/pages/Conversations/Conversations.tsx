@@ -35,14 +35,14 @@ const Conversations: React.FC = () => {
     if (storedToken) {
       setToken(storedToken);
       console.log('storedToken', storedToken);
-      
+
     } else {
       navigate('/');
       console.log('navig'); 
     }
   }, [navigate]);
 
-  const { data, loading, error } = useQuery(GET_CONVERSATIONS, {
+  const { data, loading, error, refetch } = useQuery(GET_CONVERSATIONS, {
     variables: { token },
     skip: !token,
     onError: (err) => {
@@ -56,6 +56,8 @@ const Conversations: React.FC = () => {
     },
     onCompleted: (data) => {
       console.log('Conversation created:', data);
+      refetch();
+      setNewConversationName('');
     },
   });
 
@@ -69,7 +71,6 @@ const Conversations: React.FC = () => {
           name: newConversationName,
         },
       });
-      setNewConversationName('');
     } catch (err) {
       console.error(err);
     }
@@ -78,6 +79,10 @@ const Conversations: React.FC = () => {
   const handleConversationClick = (conversationId: string) => {
     navigate(`/conversations/${conversationId}`);
   };
+
+  if (!token) {
+    return <p>Loading token...</p>;  // Optionnel : Affichage d'un message pendant le chargement du token
+  }
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
