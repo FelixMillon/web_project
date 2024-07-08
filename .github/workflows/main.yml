@@ -41,7 +41,7 @@ jobs:
         run: sleep 30
 
       - name: Set up environment variables
-        run: echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/nestjs-final-test-db?schema=public" >> $GITHUB_ENV
+        run: echo "DATABASE_URL=postgresql://postgres:postgres@postgres:5432/nestjs-final-test-db?schema=public" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
