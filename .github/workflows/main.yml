@@ -10,21 +10,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:13
-        ports:
-          - 5432:5432
-        env:
-          POSTGRES_DB: nestjs-final-test-db
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-        options: >-
-          --health-cmd="pg_isready"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
     steps:
       - uses: actions/checkout@v2
 
@@ -36,15 +21,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_PASSWORD }}
-
-      - name: Wait for PostgreSQL to be ready
-        run: sleep 30
-
-      - name: List running Docker containers
-        run: docker ps
-
-      - name: Set up environment variables
-        run: echo "DATABASE_URL=postgresql://postgres:postgres@postgres:5432/nestjs-final-test-db?schema=public" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
