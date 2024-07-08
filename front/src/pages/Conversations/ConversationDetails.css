@@ -1,0 +1,77 @@
+.conversation-details-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  font-family: Arial, sans-serif;
+}
+
+.message-list {
+  list-style-type: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.message-item {
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.message-item.left {
+  justify-content: flex-start;
+}
+
+.message-item.right {
+  justify-content: flex-end;
+}
+
+.message-item strong {
+  margin-right: 10px;
+}
+
+.send-message-form,
+.invite-user-form {
+  display: flex;
+  margin-top: 20px;
+}
+
+.send-message-form input,
+.invite-user-form input {
+  flex: 1;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.send-message-form button,
+.invite-user-form button {
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.send-message-form button:hover,
+.invite-user-form button:hover {
+  background-color: #0056b3;
+}
+
+.delete-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background-color: #c82333;
+}

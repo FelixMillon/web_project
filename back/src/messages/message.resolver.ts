@@ -39,7 +39,7 @@ export class MessageResolver {
     @Args('token') token: string,
     @Args('id') id: string
   ): Promise<boolean> {
-    this.checkIsMyMessage(token, id)
+    await this.checkIsMyMessage(token, id)
     return this.messageService.deleteById(id);
   }
 
@@ -69,10 +69,16 @@ export class MessageResolver {
     return await this.messageService.getByAuthor(payload.id);
   }
 
+  @Query(() => [Message])
+  async getMessageByConversation(@Args('conversationId') conversationId: string): Promise<Partial<Message>[]> {
+    return await this.messageService.getByConversationId(conversationId);
+  }
+
   async checkIsMyMessage(token: string, id: string){
     const payload = getPayload(token)
     const message = await this.messageService.getById(id)
-    if(!(message.id == payload.id)){
+    const userId = message['authorId']
+    if(!(userId == payload.id)){
       throw new UnauthorizedException("Non autorisé à gérer ce message");
     }
   }

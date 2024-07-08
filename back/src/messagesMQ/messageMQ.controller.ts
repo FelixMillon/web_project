@@ -15,7 +15,7 @@ export class MessageMQController {
     @Body('eventType') eventType: string,
     @Body('token') token: string,
     @Body('content') content: string
-) {
+  ) {
     const payload = getPayload(token)
     const message: SendedMessage = {
         conversationId,
@@ -25,4 +25,5 @@ export class MessageMQController {
     }
     await this.messageService.publishMessage(message);
   }
+
 }

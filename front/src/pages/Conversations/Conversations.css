@@ -1,0 +1,47 @@
+.token-input-container,
+.conversations-container,
+.create-conversation-container,
+.conversation-details-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.token-form,
+.create-conversation-form,
+.send-message-form,
+.invite-user-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input,
+button {
+  margin: 10px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.conversations-list,
+.messages-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.conversation-item,
+.message-item {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  width: 300px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.conversation-name {
+  font-size: 18px;
+  font-weight: bold;
+}

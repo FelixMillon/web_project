@@ -1,5 +1,6 @@
 import { Injectable, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { Conversation } from './conversation.model';
+import { Message } from '../messages/message.model';
 import { User } from '../users/user.model';
 import { PrismaService } from '../infrastructure/database/database.service';
 import { Prisma } from '@prisma/client';
@@ -75,6 +76,36 @@ export class ConversationService {
         return false;
     }
   }
+  
+  async joinByEmail(id: string, userEmail: string): Promise<boolean> {
+
+  try {
+    const userInfo = await this.prisma.user.findUniqueOrThrow({
+        where: { email: userEmail }
+    });
+    try {
+      await this.prisma.conversation.update({
+        where: { id },
+        data: {
+          users: {
+            connect: { id: userInfo.id },
+          },
+        }
+      });
+      return true
+    } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+            throw new BadRequestException("Conversation doesn't exist");
+        }
+        return false;
+    }
+  } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+          throw new BadRequestException("User doesn't exist");
+      }
+      return false;
+  }
+}
 
   async leave(id: string, userId: string): Promise<boolean> {
     try {
