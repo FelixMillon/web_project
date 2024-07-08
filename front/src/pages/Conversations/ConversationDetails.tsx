@@ -3,7 +3,6 @@ import { gql, useQuery, useMutation } from '@apollo/client';
 import { useParams, useNavigate } from 'react-router-dom';
 import './ConversationDetails.css';
 
-// Requête pour récupérer les messages par conversation
 const GET_MESSAGES_BY_CONVERSATION = gql`
   query getMessageByConversation($conversationId: String!) {
     getMessageByConversation(conversationId: $conversationId) {
@@ -18,7 +17,6 @@ const GET_MESSAGES_BY_CONVERSATION = gql`
   }
 `;
 
-// Mutation pour envoyer un message
 const SEND_MESSAGE = gql`
   mutation SendMessage($token: String!, $conversationId: String!, $content: String!) {
     publishMessage(token: $token, conversationId: $conversationId, content: $content, eventType: "text") {
@@ -33,7 +31,6 @@ const SEND_MESSAGE = gql`
   }
 `;
 
-// Mutation pour inviter un utilisateur
 const INVITE_USER = gql`
   mutation InviteUser($token: String!, $conversationId: String!, $userId: String!) {
     invitesTo(token: $token, id: $conversationId, userId: $userId) {
@@ -46,7 +43,6 @@ const INVITE_USER = gql`
   }
 `;
 
-// Mutation pour supprimer un message
 const DELETE_MESSAGE = gql`
   mutation DeleteMessage($token: String!, $id: String!) {
     deleteMessageById(token: $token, id: $id)
@@ -75,13 +71,13 @@ const ConversationDetails: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       refetch();
-    }, 5000); // Actualise toutes les 5 secondes
+    }, 5000);
     return () => clearInterval(interval);
   }, [refetch]);
 
   const [sendMessage] = useMutation(SEND_MESSAGE, {
     onCompleted: () => {
-      refetch(); // Refresh the list of messages after sending a new message
+      refetch();
     },
     onError: (err) => {
       console.error('SEND_MESSAGE error:', err);
@@ -99,7 +95,7 @@ const ConversationDetails: React.FC = () => {
 
   const [deleteMessage] = useMutation(DELETE_MESSAGE, {
     onCompleted: () => {
-      refetch(); // Refresh the list of messages after deleting a message
+      refetch();
     },
     onError: (err) => {
       console.error('DELETE_MESSAGE error:', err);

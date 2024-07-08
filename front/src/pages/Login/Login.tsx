@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMutation, gql } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
 const LOGIN_MUTATION = gql`
@@ -13,6 +14,7 @@ const LOGIN_MUTATION = gql`
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigate = useNavigate();
   const [login, { loading, error }] = useMutation(LOGIN_MUTATION);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -21,10 +23,9 @@ const Login: React.FC = () => {
       const response = await login({ variables: { email, password } });
       const token = response.data.login.access_token;
       localStorage.setItem('token', token);
-      alert('Login successful');
+      navigate('/conversations');
     } catch (err) {
       console.error(err);
-      alert('Login failed');
     }
   };
 

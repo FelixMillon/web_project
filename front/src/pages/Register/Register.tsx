@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { gql, useMutation } from '@apollo/client';
+import { useNavigate } from 'react-router-dom';
 import './Register.css';
 
 const CREATE_USER = gql`
@@ -18,13 +19,15 @@ const Register: React.FC = () => {
   const [pseudo, setPseudo] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [createUser, { data, loading, error }] = useMutation(CREATE_USER);
+  const [createUser, { loading, error }] = useMutation(CREATE_USER);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await createUser({ variables: { email, pseudo, name, password } });
       alert('User created successfully');
+      navigate('/');
     } catch (e) {
       console.error(e);
     }

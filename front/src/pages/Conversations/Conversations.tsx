@@ -34,8 +34,11 @@ const Conversations: React.FC = () => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
       setToken(storedToken);
+      console.log('storedToken', storedToken);
+      
     } else {
       navigate('/');
+      console.log('navig'); 
     }
   }, [navigate]);
 
